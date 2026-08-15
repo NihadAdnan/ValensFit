@@ -19,7 +19,7 @@ namespace ValensFit.Models
     public class MealPlanModel
     {
         public string SlotName { get; set; } = "Breakfast"; // Breakfast, Lunch, Dinner, Snack
-        public string Title { get; set; } = "Morning Sustenance";
+        public string Title { get; set; } = "Morning Meal";
         public string TimingGuidance { get; set; } = "Within 1-2 hours of waking";
         public double TargetCalories { get; set; }
         public double TargetProtein { get; set; }
@@ -34,8 +34,8 @@ namespace ValensFit.Models
     public class DayPlanModel
     {
         public int DayNumber { get; set; } = 1;
-        public string DayName { get; set; } = "Day I - Primus";
-        public string DayTheme { get; set; } = "High Energy & Sustained Focus";
+        public string DayName { get; set; } = "Day I";
+        public string DayTheme { get; set; } = "Energy & Recovery";
         public List<MealPlanModel> Meals { get; set; } = new();
         public double TotalCalories { get; set; }
         public double TotalProtein { get; set; }
@@ -53,6 +53,7 @@ namespace ValensFit.Models
         public decimal UnitPrice { get; set; }
         public string PriceUnit { get; set; } = "kg";
         public decimal TotalCost { get; set; }
+        public decimal EstimatedMonthlyCost { get; set; }
         public string Currency { get; set; } = "BDT";
     }
 
@@ -64,22 +65,23 @@ namespace ValensFit.Models
         public decimal? UserMonthlyBudget { get; set; }
         public string Currency { get; set; } = "BDT";
         public string Verdict { get; set; } = "fits"; // fits, tight, over_budget
-        public string VerdictTitle { get; set; } = "VICTORY: FITS BUDGET";
+        public string VerdictTitle { get; set; } = "Within Budget";
         public string Notes { get; set; } = string.Empty;
         public List<string> SwapSuggestions { get; set; } = new();
-        public string Source { get; set; } = "Rule-Based Grounded Engine"; // Ollama AI Grounded / Deterministic Market Fallback
+        public string Source { get; set; } = "Regional Price Index";
     }
 
     public class PlanResultModel
     {
-        public string FirstName { get; set; } = "Gladiator";
+        public string FirstName { get; set; } = "Athlete";
         public string Gender { get; set; } = "Male";
         public int Age { get; set; } = 25;
         public double HeightCm { get; set; } = 175;
         public double WeightKg { get; set; } = 70;
         public string ActivityLevel { get; set; } = "ModeratelyActive";
         public string Goal { get; set; } = "LoseFat";
-        public string GoalDisplayName { get; set; } = "Fat Loss & Athletic Definition";
+        public string GoalDisplayName { get; set; } = "Fat Loss & Muscle Definition";
+        public bool MaximizeMuscleRetention { get; set; } = true;
 
         public double Bmr { get; set; }
         public double Tdee { get; set; }

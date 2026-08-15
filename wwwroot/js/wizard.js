@@ -1,5 +1,5 @@
 /**
- * ValensFit — Roman Multi-Step Wizard Engine
+ * ValensFit — Wizard Engine
  */
 const Wizard = (() => {
     let currentStep = 0;
@@ -16,10 +16,8 @@ const Wizard = (() => {
     };
 
     function init() {
-        // Setup initial step display
         updateStepUI(0);
 
-        // Age listener for under-18 disclaimer
         const ageInput = document.getElementById('Age');
         if (ageInput) {
             ageInput.addEventListener('input', () => {
@@ -39,20 +37,17 @@ const Wizard = (() => {
     }
 
     function updateStepUI(stepNumber) {
-        // Hide all steps
         document.querySelectorAll('.wizard-step').forEach(el => {
             el.style.display = 'none';
             el.classList.remove('active');
         });
 
-        // Show active step
         const activeStepEl = document.getElementById(`step${stepNumber}`);
         if (activeStepEl) {
             activeStepEl.style.display = 'block';
             activeStepEl.classList.add('active');
         }
 
-        // Progress bar visibility & percentage
         const progressSection = document.getElementById('progressBarSection');
         const progressFill = document.getElementById('progressFill');
 
@@ -63,7 +58,6 @@ const Wizard = (() => {
             const pct = ((stepNumber - 1) / 3) * 100;
             if (progressFill) progressFill.style.width = `${pct}%`;
 
-            // Update step nodes
             document.querySelectorAll('.step-node').forEach(node => {
                 const nodeStep = parseInt(node.dataset.step, 10);
                 node.classList.remove('active', 'completed');
@@ -79,7 +73,7 @@ const Wizard = (() => {
     function validateStep1() {
         const nameInput = document.getElementById('FirstName');
         if (!nameInput || !nameInput.value.trim()) {
-            alert('Please enter your name, warrior.');
+            alert('Please enter your first name.');
             nameInput?.focus();
             return;
         }
@@ -99,7 +93,6 @@ const Wizard = (() => {
         goToStep(4);
     }
 
-    // Selectable Card Helpers
     function setGender(gender, element) {
         document.getElementById('Gender').value = gender;
         element.parentElement.querySelectorAll('.select-card').forEach(c => c.classList.remove('selected'));
@@ -123,13 +116,25 @@ const Wizard = (() => {
         }
     }
 
+    function setMealStructure(structure, element) {
+        document.getElementById('MealStructure').value = structure;
+        element.parentElement.querySelectorAll('.select-card').forEach(c => c.classList.remove('selected'));
+        element.classList.add('selected');
+    }
+
+    function toggleOfficeLunch(isChecked) {
+        const detail = document.getElementById('officeLunchDetail');
+        if (detail) {
+            detail.style.display = isChecked ? 'block' : 'none';
+        }
+    }
+
     function setExercise(exercise, element) {
         document.getElementById('ExercisePreference').value = exercise;
         element.parentElement.querySelectorAll('.select-card').forEach(c => c.classList.remove('selected'));
         element.classList.add('selected');
     }
 
-    // Unit Toggles
     function setHeightUnit(unit) {
         document.getElementById('HeightUnit').value = unit;
         const btnCm = document.getElementById('btnHeightCm');
@@ -143,7 +148,6 @@ const Wizard = (() => {
             cmGrp.style.display = 'block';
             ftGrp.style.display = 'none';
 
-            // Auto-convert ft/in to cm if valid
             const ft = parseFloat(document.getElementById('HeightFt').value) || 5;
             const inches = parseFloat(document.getElementById('HeightInches').value) || 9;
             const cm = Math.round(((ft * 12) + inches) * 2.54);
@@ -154,7 +158,6 @@ const Wizard = (() => {
             cmGrp.style.display = 'none';
             ftGrp.style.display = 'flex';
 
-            // Auto-convert cm to ft/in
             const cm = parseFloat(document.getElementById('Height').value) || 175;
             const totalInches = cm / 2.54;
             const ft = Math.floor(totalInches / 12);
@@ -186,7 +189,6 @@ const Wizard = (() => {
         }
     }
 
-    // Country & Currency
     function onCountryChange(countryName) {
         const info = countryCurrencyMap[countryName] || { currency: "USD", symbol: "$", defaultBudget: 300 };
         document.getElementById('Currency').value = info.currency;
@@ -194,7 +196,6 @@ const Wizard = (() => {
         document.getElementById('MonthlyBudget').value = info.defaultBudget;
     }
 
-    // Diet Tags
     function toggleDietTag(el, tag) {
         if (selectedDietTags.has(tag)) {
             selectedDietTags.delete(tag);
@@ -205,7 +206,6 @@ const Wizard = (() => {
         }
     }
 
-    // Quick Presets
     async function loadPreset(presetKey) {
         try {
             const resp = await fetch(`/Plan/Preset?type=${encodeURIComponent(presetKey)}`);
@@ -249,7 +249,10 @@ const Wizard = (() => {
         }
         if (data.cityRegion) document.getElementById('CityRegion').value = data.cityRegion;
         if (data.monthlyBudget) document.getElementById('MonthlyBudget').value = data.monthlyBudget;
-        if (data.officeLunch) document.getElementById('OfficeLunch').checked = data.officeLunch;
+        if (data.officeLunch) {
+            document.getElementById('OfficeLunch').checked = data.officeLunch;
+            toggleOfficeLunch(true);
+        }
 
         if (data.exercisePreference) {
             document.getElementById('ExercisePreference').value = data.exercisePreference;
@@ -262,7 +265,6 @@ const Wizard = (() => {
         if (data.minutesPerSession) document.getElementById('MinutesPerSession').value = data.minutesPerSession;
         if (data.experienceLevel) document.getElementById('ExperienceLevel').value = data.experienceLevel;
 
-        // Diet tags
         selectedDietTags.clear();
         document.querySelectorAll('#dietTagsCloud .diet-tag').forEach(t => t.classList.remove('active'));
         if (data.dietPreferences) {
@@ -277,20 +279,17 @@ const Wizard = (() => {
         }
     }
 
-    // Submit and Generate Plan
     async function submitAndGenerate() {
-        goToStep(5); // Show loading state
+        goToStep(5);
 
-        // Animate generation steps
-        animateGenStep('genStep1', 600);
-        animateGenStep('genStep2', 1200);
-        animateGenStep('genStep3', 1800);
-        animateGenStep('genStep4', 2600);
-        animateGenStep('genStep5', 3400);
+        animateGenStep('genStep1', 500);
+        animateGenStep('genStep2', 1000);
+        animateGenStep('genStep3', 1500);
+        animateGenStep('genStep4', 2000);
+        animateGenStep('genStep5', 2500);
 
-        // Collect model payload
         const payload = {
-            firstName: document.getElementById('FirstName').value.trim() || 'Athlete',
+            firstName: document.getElementById('FirstName').value.trim() || 'Friend',
             gender: document.getElementById('Gender').value || 'Male',
             age: parseInt(document.getElementById('Age').value, 10) || 25,
             height: parseFloat(document.getElementById('Height').value) || 175,
@@ -299,18 +298,21 @@ const Wizard = (() => {
             weight: parseFloat(document.getElementById('Weight').value) || 70,
             weightUnit: document.getElementById('WeightUnit').value || 'kg',
             activityLevel: document.getElementById('ActivityLevel').value || 'ModeratelyActive',
-            dailyStepsTarget: 8000,
             goal: document.getElementById('Goal').value || 'LoseFat',
+            maximizeMuscleRetention: document.getElementById('MaximizeMuscleRetention')?.checked ?? true,
             targetWeightLossKg: parseFloat(document.getElementById('TargetWeightLossKg')?.value) || null,
             timeframeWeeks: parseInt(document.getElementById('TimeframeWeeks')?.value, 10) || null,
             country: document.getElementById('Country').value || 'Bangladesh',
             cityRegion: document.getElementById('CityRegion').value || 'Dhaka',
             monthlyBudget: parseFloat(document.getElementById('MonthlyBudget').value) || null,
             currency: document.getElementById('Currency').value || 'BDT',
+            mealStructure: document.getElementById('MealStructure')?.value || 'Standard',
+            officeLunch: document.getElementById('OfficeLunch')?.checked || false,
+            officeLunchDescription: document.getElementById('OfficeLunchDescription')?.value || '',
             dietPreferences: Array.from(selectedDietTags),
             customRestrictions: document.getElementById('CustomRestrictions').value || '',
-            officeLunch: document.getElementById('OfficeLunch').checked,
             exercisePreference: document.getElementById('ExercisePreference').value || 'Gym',
+            dailyStepsTarget: parseInt(document.getElementById('DailyStepsTarget')?.value, 10) || 10000,
             daysPerWeek: parseInt(document.getElementById('DaysPerWeek').value, 10) || 4,
             minutesPerSession: parseInt(document.getElementById('MinutesPerSession').value, 10) || 45,
             experienceLevel: document.getElementById('ExperienceLevel').value || 'Beginner'
@@ -327,17 +329,15 @@ const Wizard = (() => {
             });
 
             if (response.ok) {
-                // Ensure at least 2.5s for smooth dramatic animation before redirecting to result
                 setTimeout(() => {
                     window.location.href = '/Plan/Result';
-                }, 2800);
+                }, 2200);
             } else {
-                alert('Calculation error occurred. Returning to review your inputs.');
+                alert('An error occurred during calculation. Returning to review inputs.');
                 goToStep(4);
             }
         } catch (err) {
             console.error('Generation failed:', err);
-            // Fallback: standard form submit
             document.getElementById('planForm').submit();
         }
     }
@@ -353,7 +353,6 @@ const Wizard = (() => {
         }, delayMs);
     }
 
-    // Initialize on DOM load
     document.addEventListener('DOMContentLoaded', init);
 
     return {
@@ -364,6 +363,8 @@ const Wizard = (() => {
         setGender,
         setActivity,
         setGoal,
+        setMealStructure,
+        toggleOfficeLunch,
         setExercise,
         setHeightUnit,
         setWeightUnit,

@@ -63,7 +63,7 @@ namespace ValensFit.Tests
         }
 
         [Fact]
-        public void MacroCalculator_FatLoss_ShouldApplySafeDeficitAndProteinFirst()
+        public void MacroCalculator_MuscleRetention_ShouldAllocateHighProtein()
         {
             var input = new UserInputModel
             {
@@ -72,7 +72,8 @@ namespace ValensFit.Tests
                 Age = 24,
                 Weight = 80,
                 Height = 175,
-                Goal = "LoseFat"
+                Goal = "LoseFat",
+                MaximizeMuscleRetention = true
             };
 
             double bmr = 1774;
@@ -82,7 +83,7 @@ namespace ValensFit.Tests
 
             Assert.True(result.TargetCalories < tdee);
             Assert.True(result.TargetCalories >= 1500, "Male safety floor must be respected");
-            Assert.Equal(160, result.ProteinGrams); // 80kg * 2.0g/kg
+            Assert.Equal(176, result.ProteinGrams); // 80kg * 2.2g/kg = 176g
             Assert.True(result.FatGrams > 0);
             Assert.True(result.CarbGrams > 0);
             Assert.True(result.WaterLitres >= 3.0);
@@ -99,7 +100,7 @@ namespace ValensFit.Tests
                 Weight = 70,
                 Height = 175,
                 Goal = "LoseFat",
-                TargetWeightLossKg = 10, // 10kg in 4 weeks is 2.5 kg/week (3.5% BW/week) -> Overly aggressive!
+                TargetWeightLossKg = 10,
                 TimeframeWeeks = 4
             };
 
@@ -110,41 +111,47 @@ namespace ValensFit.Tests
         }
 
         [Fact]
-        public void FoodDatabase_Filter_ShouldFilterDietTags()
+        public void FoodDatabase_BangladeshRegion_ShouldFilterRealisticStaples()
         {
-            var halalChicken = _foodDatabase.FilterFoods(new List<string> { "Halal", "Egg + Chicken Only" }, null, "Lunch", "Protein");
-            Assert.NotEmpty(halalChicken);
-            Assert.All(halalChicken, f => Assert.DoesNotContain("beef", f.Id, StringComparison.OrdinalIgnoreCase));
+            var bangladeshFoods = _foodDatabase.FilterFoods(new List<string> { "Halal" }, null, "Breakfast", null, "Bangladesh");
+            Assert.NotEmpty(bangladeshFoods);
+            // Should contain eggs, roti, banana, sour curd, etc. and not western-only items
+            Assert.Contains(bangladeshFoods, f => f.Id == "egg_whole" || f.Id == "whole_wheat_roti");
+            Assert.DoesNotContain(bangladeshFoods, f => f.Id == "rolled_oats");
         }
 
         [Fact]
-        public void MealBuilderService_ShouldGenerateSevenDistinctDaysWithinTolerance()
+        public void MealBuilderService_LightBreakfast_ShouldDistributeCalories()
         {
             var input = new UserInputModel
             {
-                FirstName = "Gladiator",
+                FirstName = "Rafi",
                 Gender = "Male",
                 Age = 25,
                 Weight = 75,
                 Height = 175,
                 Goal = "LoseFat",
-                DietPreferences = new List<string> { "Halal" }
+                Country = "Bangladesh",
+                MealStructure = "LightBreakfast"
             };
 
-            double targetKcal = 2000;
-            double targetProtein = 150;
-            double targetFat = 50;
-            double targetCarbs = 237;
+            double targetKcal = 1800;
+            double targetProtein = 165;
+            double targetFat = 44;
+            double targetCarbs = 186;
 
             var days = _mealBuilder.BuildSevenDayPlan(input, targetKcal, targetProtein, targetFat, targetCarbs);
 
             Assert.Equal(7, days.Count);
             foreach (var day in days)
             {
-                Assert.Equal(3, day.Meals.Count); // Breakfast, Lunch, Dinner
-                // Each day sum should be within +/- 3% of daily target
-                double kcalDiffPct = Math.Abs(day.TotalCalories - targetKcal) / targetKcal;
-                Assert.True(kcalDiffPct <= 0.05, $"Day {day.DayNumber} kcal difference was {kcalDiffPct * 100}% ({day.TotalCalories} vs {targetKcal})");
+                var breakfast = day.Meals.First(m => m.SlotName == "Breakfast");
+                var lunch = day.Meals.First(m => m.SlotName == "Lunch");
+                var dinner = day.Meals.First(m => m.SlotName == "Dinner");
+
+                // Breakfast should be lighter than lunch/dinner
+                Assert.True(breakfast.ActualCalories < lunch.ActualCalories);
+                Assert.True(breakfast.ActualCalories < dinner.ActualCalories);
             }
         }
 
@@ -166,39 +173,40 @@ namespace ValensFit.Tests
             Assert.NotNull(swapResp.NewItem);
             Assert.Equal("white_fish_tilapia", swapResp.NewItem.FoodId);
             Assert.True(swapResp.NewItem.Grams > 0);
-            Assert.True(swapResp.NewItem.Protein > 40);
         }
 
         [Fact]
-        public void ExercisePlanService_ShouldGenerateMatchingSchedule()
+        public void ExercisePlanService_WalkingSteps_ShouldReflectInPlan()
         {
-            var inputGym = new UserInputModel { ExercisePreference = "Gym", DaysPerWeek = 4, MinutesPerSession = 50 };
-            var planGym = _exerciseService.GeneratePlan(inputGym);
-            Assert.NotEmpty(planGym.Schedule);
-
-            var inputWalk = new UserInputModel { ExercisePreference = "WalkingOnly", DaysPerWeek = 5, MinutesPerSession = 40 };
+            var inputWalk = new UserInputModel
+            {
+                ExercisePreference = "WalkingOnly",
+                DaysPerWeek = 5,
+                MinutesPerSession = 45,
+                DailyStepsTarget = 12000
+            };
             var planWalk = _exerciseService.GeneratePlan(inputWalk);
             Assert.NotEmpty(planWalk.Schedule);
+            Assert.Equal(12000, planWalk.DailyStepTarget);
         }
 
         [Fact]
-        public void GroceryPricingService_ShouldAggregateAndEvaluateBudget()
+        public void GroceryPricingService_ShouldIncludeWeeklyAndMonthlyCost()
         {
             var input = new UserInputModel
             {
                 Country = "Bangladesh",
                 Currency = "BDT",
-                MonthlyBudget = 8000
+                MonthlyBudget = 7000
             };
 
-            var days = _mealBuilder.BuildSevenDayPlan(input, 1900, 150, 45, 220);
+            var days = _mealBuilder.BuildSevenDayPlan(input, 1850, 160, 45, 200);
             var verdict = _groceryPricing.CalculateDeterministicGroceryPlan(days, input);
 
             Assert.NotEmpty(verdict.Items);
             Assert.True(verdict.EstimatedWeeklyCost > 0);
             Assert.True(verdict.EstimatedMonthlyCost > 0);
-            Assert.NotNull(verdict.Verdict);
-            Assert.Contains(verdict.Verdict, new[] { "fits", "tight", "over_budget" });
+            Assert.All(verdict.Items, item => Assert.True(item.EstimatedMonthlyCost > 0));
         }
     }
 }

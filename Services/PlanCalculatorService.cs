@@ -40,18 +40,19 @@ namespace ValensFit.Services
         {
             var plan = new PlanResultModel
             {
-                FirstName = string.IsNullOrWhiteSpace(input.FirstName) ? "Gladiator" : input.FirstName.Trim(),
+                FirstName = string.IsNullOrWhiteSpace(input.FirstName) ? "Friend" : input.FirstName.Trim(),
                 Gender = input.Gender,
                 Age = input.Age,
                 HeightCm = input.GetHeightInCm(),
                 WeightKg = input.GetWeightInKg(),
                 ActivityLevel = input.ActivityLevel,
                 Goal = input.Goal,
+                MaximizeMuscleRetention = input.MaximizeMuscleRetention,
                 GoalDisplayName = input.Goal?.ToLowerInvariant() switch
                 {
-                    "losefat" => "Fat Loss & Athletic Definition",
-                    "buildmuscle" => "Hypertrophy & Muscle Fortification",
-                    _ => "Body Recomposition & Lean Maintenance"
+                    "losefat" => "Fat Loss & Muscle Definition",
+                    "buildmuscle" => "Lean Muscle Hypertrophy",
+                    _ => "Body Recomposition & Maintenance"
                 }
             };
 
@@ -107,13 +108,13 @@ namespace ValensFit.Services
                 var aiVerdict = await _ollamaClient.EvaluateBudgetWithAiAsync(input, deterministicGrocery, ct);
                 if (aiVerdict != null)
                 {
-                    plan.GroceryBudget.Source = "Ollama AI Grounded (Real Market Index)";
+                    plan.GroceryBudget.Source = "Ollama Local AI Market Index";
                     plan.GroceryBudget.Verdict = aiVerdict.Verdict?.ToLowerInvariant() ?? deterministicGrocery.Verdict;
                     plan.GroceryBudget.VerdictTitle = plan.GroceryBudget.Verdict switch
                     {
-                        "fits" => "VICTORY: FITS COMFORTABLY",
-                        "tight" => "ALERT: TIGHT BUDGET FIT",
-                        "over_budget" => "EXCEEDS BUDGET ALLOCATION",
+                        "fits" => "Within Budget",
+                        "tight" => "Tight Budget Fit",
+                        "over_budget" => "Exceeds Budget Allocation",
                         _ => deterministicGrocery.VerdictTitle
                     };
 

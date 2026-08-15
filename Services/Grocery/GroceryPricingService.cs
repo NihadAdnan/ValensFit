@@ -47,8 +47,9 @@ namespace ValensFit.Services.Grocery
                 var (pricePer100g, note, unit, pricePerUnit) = _foodDb.GetPriceEstimate(foodId, currency);
 
                 // Calculate item cost
-                decimal itemCost = Math.Round((decimal)(totalGrams / 100.0) * pricePer100g, 0);
-                totalWeeklyCost += itemCost;
+                decimal itemWeeklyCost = Math.Round((decimal)(totalGrams / 100.0) * pricePer100g, 0);
+                decimal itemMonthlyCost = Math.Round(itemWeeklyCost * 4.33m, 0);
+                totalWeeklyCost += itemWeeklyCost;
 
                 string displayWeeklyQty = FormatWeeklyQuantity(food, totalGrams);
 
@@ -56,17 +57,18 @@ namespace ValensFit.Services.Grocery
                 {
                     FoodId = foodId,
                     FoodName = food?.Name ?? foodId,
-                    Category = food?.Category ?? "Pantry",
+                    Category = food?.Category ?? "Protein",
                     TotalGrams = Math.Round(totalGrams, 0),
                     DisplayWeeklyQuantity = displayWeeklyQty,
                     UnitPrice = pricePerUnit,
                     PriceUnit = unit,
-                    TotalCost = itemCost,
+                    TotalCost = itemWeeklyCost,
+                    EstimatedMonthlyCost = itemMonthlyCost,
                     Currency = currency
                 });
             }
 
-            // Sort by Category (Protein, Carb, Veggie, HealthyFat) then Total Cost descending
+            // Sort by Category then Total Cost descending
             var categoryOrder = new Dictionary<string, int>
             {
                 { "Protein", 1 },
@@ -82,7 +84,7 @@ namespace ValensFit.Services.Grocery
                 .ThenByDescending(g => g.TotalCost)
                 .ToList();
 
-            decimal totalMonthlyCost = Math.Round(totalWeeklyCost * 4.33m, 0); // 4.33 weeks in a month
+            decimal totalMonthlyCost = Math.Round(totalWeeklyCost * 4.33m, 0); // 4.33 weeks per month
 
             var verdictModel = new GroceryBudgetVerdictModel
             {
@@ -91,7 +93,7 @@ namespace ValensFit.Services.Grocery
                 EstimatedMonthlyCost = totalMonthlyCost,
                 UserMonthlyBudget = input.MonthlyBudget,
                 Currency = currency,
-                Source = "Deterministic Local Market Price Index"
+                Source = "Regional Grocery Price Index"
             };
 
             // Rule-based budget evaluation
@@ -105,9 +107,9 @@ namespace ValensFit.Services.Grocery
             if (!userBudget.HasValue || userBudget.Value <= 0)
             {
                 model.Verdict = "fits";
-                model.VerdictTitle = "ESTIMATED MARKET COST";
-                model.Notes = $"Weekly grocery expenditure is estimated at {model.Currency} {model.EstimatedWeeklyCost:N0} (~{model.Currency} {model.EstimatedMonthlyCost:N0}/month).";
-                model.SwapSuggestions.Add("Buy staple grains (rice/oats) and whole eggs in bulk wholesale trays to save 15-20%.");
+                model.VerdictTitle = "Estimated Market Cost";
+                model.Notes = $"Estimated grocery expenditure is {model.Currency} {model.EstimatedWeeklyCost:N0} / week (approx. {model.Currency} {model.EstimatedMonthlyCost:N0} / month).";
+                model.SwapSuggestions.Add("Buy eggs in wholesale crates (30-egg tray) and staple grains in 5kg bags to save 15-20%.");
                 return;
             }
 
@@ -117,25 +119,25 @@ namespace ValensFit.Services.Grocery
             if (estCost <= monthlyBudget * 0.90m)
             {
                 model.Verdict = "fits";
-                model.VerdictTitle = "VICTORY: FITS COMFORTABLY";
-                model.Notes = $"Your monthly budget of {model.Currency} {monthlyBudget:N0} comfortably covers the estimated monthly food expenditure of {model.Currency} {estCost:N0} with a surplus buffer of {model.Currency} {(monthlyBudget - estCost):N0}.";
-                model.SwapSuggestions.Add("You can occasionally upgrade protein sources to lean beef cuts or salmon while remaining within your allocation.");
+                model.VerdictTitle = "Within Budget";
+                model.Notes = $"Your monthly budget of {model.Currency} {monthlyBudget:N0} comfortably covers estimated monthly grocery costs ({model.Currency} {estCost:N0}) with a buffer of {model.Currency} {(monthlyBudget - estCost):N0}.";
+                model.SwapSuggestions.Add("Budget is well balanced. You can maintain this plan consistently without financial strain.");
             }
             else if (estCost <= monthlyBudget * 1.05m)
             {
                 model.Verdict = "tight";
-                model.VerdictTitle = "ALERT: TIGHT BUDGET FIT";
-                model.Notes = $"Your monthly estimate of {model.Currency} {estCost:N0} closely tracks your declared budget of {model.Currency} {monthlyBudget:N0} (approx {(estCost / monthlyBudget * 100):F0}% utilization).";
-                model.SwapSuggestions.Add("Substitute 1 whole-egg portion for chicken breast on alternating days to trim 10-15% of protein cost.");
-                model.SwapSuggestions.Add("Purchase seasonal local greens (lau, spinach, cabbage) over premium imported vegetables.");
+                model.VerdictTitle = "Tight Budget Fit";
+                model.Notes = $"Estimated monthly expenditure ({model.Currency} {estCost:N0}) closely matches your budget of {model.Currency} {monthlyBudget:N0} (~{(estCost / monthlyBudget * 100):F0}% utilization).";
+                model.SwapSuggestions.Add("Swap 1 chicken portion for farm eggs or masoor dal on 2 days each week to trim ~10-15% of protein cost.");
+                model.SwapSuggestions.Add("Prioritize seasonal local greens (palong shaak, lau, bandhakopi) over off-season produce.");
             }
             else
             {
                 model.Verdict = "over_budget";
-                model.VerdictTitle = "EXCEEDS BUDGET ALLOCATION";
-                model.Notes = $"Estimated monthly expenditure ({model.Currency} {estCost:N0}) exceeds your targeted budget of {model.Currency} {monthlyBudget:N0} by approximately {model.Currency} {(estCost - monthlyBudget):N0}.";
-                model.SwapSuggestions.Add("Increase the proportion of eggs, masoor dal (red lentils), and tok doi/curd to reach high protein at 40% lower cost.");
-                model.SwapSuggestions.Add("Buy local chicken breast in whole kilo portions from wholesale wet markets rather than supermarket pre-cuts.");
+                model.VerdictTitle = "Over Budget Target";
+                model.Notes = $"Estimated monthly cost ({model.Currency} {estCost:N0}) exceeds your targeted budget of {model.Currency} {monthlyBudget:N0} by approximately {model.Currency} {(estCost - monthlyBudget):N0}.";
+                model.SwapSuggestions.Add("Substitute some chicken breast meals with whole eggs, masoor dal, and plain sour curd (tok doi) to maintain high protein at lower cost.");
+                model.SwapSuggestions.Add("Purchase whole bone-in chicken or fresh fish from wholesale wet markets rather than supermarket pre-cuts.");
             }
         }
 

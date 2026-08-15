@@ -1,5 +1,5 @@
 /**
- * ValensFit — Results Screen Interactivity & Dynamic Food Swapping
+ * ValensFit — Results Section Navigation & Dynamic Food Swapping
  */
 const ResultView = (() => {
     let activeSwapContext = null;
@@ -8,19 +8,43 @@ const ResultView = (() => {
         initCountUpAnimations();
     }
 
-    // Smooth count-up numbers
+    function showSection(sectionKey, btnElement) {
+        // Update navigation button active state
+        document.querySelectorAll('.section-nav-btn').forEach(btn => btn.classList.remove('active'));
+        if (btnElement) {
+            btnElement.classList.add('active');
+        }
+
+        // Hide all section views
+        document.querySelectorAll('.result-section-view').forEach(sec => {
+            sec.style.display = 'none';
+        });
+
+        // Show selected section view
+        const targetSec = sectionKey switch {
+            'overview' => document.getElementById('secOverview'),
+            'meals' => document.getElementById('secMeals'),
+            'grocery' => document.getElementById('secGrocery'),
+            'workout' => document.getElementById('secWorkout'),
+            _ => document.getElementById('secOverview')
+        };
+
+        if (targetSec) {
+            targetSec.style.display = 'block';
+        }
+    }
+
     function initCountUpAnimations() {
         const counters = document.querySelectorAll('.count-up');
         counters.forEach(counter => {
             const target = parseFloat(counter.dataset.target) || 0;
             const isDecimal = target % 1 !== 0;
-            const duration = 1200; // ms
+            const duration = 1000;
             const startTime = performance.now();
 
             function update(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                // Ease out cubic
                 const ease = 1 - Math.pow(1 - progress, 3);
                 const currentVal = ease * target;
 
@@ -39,13 +63,10 @@ const ResultView = (() => {
         });
     }
 
-    // Day Tab Selection
     function selectDay(dayIndex, btnElement) {
-        // Update tab buttons
         document.querySelectorAll('#dayTabs .day-tab-btn').forEach(btn => btn.classList.remove('active'));
-        btnElement.classList.add('active');
+        if (btnElement) btnElement.classList.add('active');
 
-        // Update day plan visibility
         document.querySelectorAll('.day-plan-card').forEach((card, idx) => {
             if (idx === dayIndex) {
                 card.style.display = 'block';
@@ -57,7 +78,6 @@ const ResultView = (() => {
         });
     }
 
-    // Interactive Food Swapping Modal
     async function openSwapModal(foodId, foodName, category, calories, protein, mealSlot, dayIndex) {
         activeSwapContext = { foodId, foodName, category, calories, protein, mealSlot, dayIndex };
 
@@ -66,12 +86,11 @@ const ResultView = (() => {
         const selectEl = document.getElementById('swapFoodSelect');
 
         if (swapText) {
-            swapText.innerHTML = `Replacing: <strong style="color: var(--gold-light);">${foodName}</strong> (${calories} kcal · ${protein}g P)`;
+            swapText.innerHTML = `Replacing: <strong>${foodName}</strong> (${calories} kcal · ${protein}g P)`;
         }
 
-        // Fetch food alternatives for this category
         try {
-            selectEl.innerHTML = '<option>Loading alternatives...</option>';
+            selectEl.innerHTML = '<option>Loading compatible options...</option>';
             const resp = await fetch(`/Plan/GetFoodOptions?category=${encodeURIComponent(category)}`);
             if (resp.ok) {
                 const foods = await resp.json();
@@ -80,7 +99,7 @@ const ResultView = (() => {
                     if (f.id !== foodId) {
                         const opt = document.createElement('option');
                         opt.value = f.id;
-                        opt.textContent = `${f.name} (${f.caloriesPer100g} kcal/100g, ${f.proteinPer100g}g P)`;
+                        opt.textContent = `${f.name} (${f.caloriesPer100g} kcal / 100g)`;
                         selectEl.appendChild(opt);
                     }
                 });
@@ -104,7 +123,7 @@ const ResultView = (() => {
         const newFoodId = selectEl.value;
 
         if (!newFoodId) {
-            alert('Please choose a replacement food item.');
+            alert('Please select a replacement food item.');
             return;
         }
 
@@ -126,23 +145,21 @@ const ResultView = (() => {
             if (response.ok) {
                 const result = await response.json();
                 if (result.success && result.newItem) {
-                    // Update DOM row in meal
                     const item = result.newItem;
-                    const rowId = `itemRow_${activeSwapContext.foodId}`;
+                    const rowId = `itemRow_${activeSwapContext.dayIndex}_${activeSwapContext.mealSlot}_${activeSwapContext.foodId}`;
                     const rowEl = document.getElementById(rowId);
 
                     if (rowEl) {
-                        rowEl.id = `itemRow_${item.foodId}`;
+                        rowEl.id = `itemRow_${activeSwapContext.dayIndex}_${activeSwapContext.mealSlot}_${item.foodId}`;
                         rowEl.innerHTML = `
                             <div class="food-name-qty">
-                                <span style="color: var(--gold-light);">✦</span> ${item.foodName}
-                                <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.4rem;">(${item.displayQuantity})</span>
+                                <span style="color: var(--accent-primary);">•</span> ${item.foodName}
+                                <span style="color: var(--text-muted); font-size: 0.82rem; margin-left: 0.35rem;">(${item.displayQuantity})</span>
                             </div>
                             <div class="food-macros-chips">
                                 <span>${item.calories} kcal</span>
-                                <span style="color: #68D391;">${item.protein} g P</span>
-                                <span style="color: #63B3ED;">${item.carbs} g C</span>
-                                <span style="color: #F6AD55;">${item.fat} g F</span>
+                                <span style="color: var(--accent-primary);">${item.protein} g P</span>
+                                <span style="color: var(--accent-secondary);">${item.carbs} g C</span>
                                 <button type="button" class="food-swap-btn no-print" onclick="ResultView.openSwapModal('${item.foodId}', '${item.foodName}', '${item.category}', ${item.calories}, ${item.protein}, '${activeSwapContext.mealSlot}', ${activeSwapContext.dayIndex})">
                                     ⇄ Swap
                                 </button>
@@ -160,7 +177,6 @@ const ResultView = (() => {
         }
     }
 
-    // Grocery Checklist Item Toggle
     function toggleChecklistItem(checkbox) {
         const itemRow = checkbox.closest('.checklist-item');
         if (itemRow) {
@@ -172,10 +188,9 @@ const ResultView = (() => {
         }
     }
 
-    // Copy Grocery Checklist to Clipboard
     function copyGroceryList() {
         const items = document.querySelectorAll('.checklist-item');
-        let text = '🏛️ VALENSFIT — 7-DAY GROCERY SHOPPING LIST\n========================================\n\n';
+        let text = '📋 VALENSFIT — 7-DAY GROCERY CHECKLIST\n========================================\n\n';
 
         items.forEach(item => {
             const label = item.querySelector('.checklist-label span')?.textContent?.trim() || '';
@@ -183,19 +198,19 @@ const ResultView = (() => {
             text += `[ ] ${label} (${cost})\n`;
         });
 
-        text += '\n========================================\nGenerated by ValensFit: Strength · Discipline · Vitality';
+        text += '\n========================================\nValensFit Nutrition Architecture';
 
         navigator.clipboard.writeText(text).then(() => {
-            alert('✓ 7-Day Grocery List copied to clipboard!');
+            alert('Grocery checklist copied to clipboard!');
         }).catch(() => {
-            alert('Could not copy to clipboard. Please copy manually.');
+            alert('Could not copy to clipboard.');
         });
     }
 
-    // Run on DOM load
     document.addEventListener('DOMContentLoaded', init);
 
     return {
+        showSection,
         selectDay,
         openSwapModal,
         closeSwapModal,

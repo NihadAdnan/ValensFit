@@ -38,16 +38,16 @@ namespace ValensFit.Services.Nutrition
             result.IsUnder18 = isUnder18;
 
             // Universal Medical Disclaimer
-            result.SafetyDisclaimers.Add("Not medical advice. General population wellness guide only. Consult a physician if pregnant, diabetic, or managing chronic health conditions.");
+            result.SafetyDisclaimers.Add("Not medical advice. General wellness guide. Consult a physician for pre-existing medical conditions.");
 
             if (isUnder18)
             {
-                result.SafetyDisclaimers.Add("Youth Advisory: Under-18 nutrition requires adequate nourishment for skeletal and hormonal development. Deficit is capped conservatively at 10%. Speak to a guardian or physician.");
+                result.SafetyDisclaimers.Add("Youth Advisory: Under-18 nutrition requires adequate nourishment for skeletal and hormonal development. Deficit is capped conservatively at 10%.");
             }
 
             double targetKcal = tdee;
             double adjustment = 0;
-            string goalDesc = "Weight Maintenance & Energetic Balance";
+            string goalDesc = "Maintenance calories aligned with your daily metabolic expenditure.";
 
             string goal = input.Goal?.ToLowerInvariant() ?? "losefat";
 
@@ -76,23 +76,21 @@ namespace ValensFit.Services.Nutrition
                     
                     if (weeklyLossPctOfBw > 0.85) // Too aggressive
                     {
-                        result.PaceWarning = $"Your requested pace ({impliedWeeklyLossKg:F2} kg/week, {weeklyLossPctOfBw:F1}% of bodyweight) is overly aggressive and risks lean muscle loss. Auto-calibrated to the safe athletic ceiling of 0.75% bodyweight ({safeWeeklyLossKgMax:F2} kg/week).";
+                        result.PaceWarning = $"Requested pace ({impliedWeeklyLossKg:F2} kg/week, {weeklyLossPctOfBw:F1}% of bodyweight) is overly aggressive and risks lean muscle loss. Auto-calibrated to the safe athletic ceiling of 0.75% bodyweight ({safeWeeklyLossKgMax:F2} kg/week).";
                         
-                        // 1 kg fat loss ≈ 7,700 kcal deficit -> daily deficit = (lossKg * 7700) / 7
                         double safeDailyDeficit = (safeWeeklyLossKgMax * 7700.0) / 7.0;
-                        adjustment = -Math.Min(safeDailyDeficit, 1100.0); // max 1100 kcal/day deficit cap
+                        adjustment = -Math.Min(safeDailyDeficit, 1000.0); // max 1000 kcal/day deficit cap
                     }
                     else
                     {
                         double requestedDailyDeficit = (impliedWeeklyLossKg * 7700.0) / 7.0;
-                        adjustment = -Math.Min(requestedDailyDeficit, 1100.0);
-                        result.PaceWarning = $"Pace verified: Targeted rate of {impliedWeeklyLossKg:F2} kg/week ({weeklyLossPctOfBw:F2}% BW/week) falls within the safe, sustainable athletic band.";
+                        adjustment = -Math.Min(requestedDailyDeficit, 1000.0);
+                        result.PaceWarning = $"Pace verified: Targeted rate of {impliedWeeklyLossKg:F2} kg/week ({weeklyLossPctOfBw:F2}% BW/week) falls within the safe, sustainable band.";
                     }
                 }
                 else
                 {
-                    // Cap at 1 kg / week (1100 kcal/day cap)
-                    adjustment = Math.Max(adjustment, -1100.0);
+                    adjustment = Math.Max(adjustment, -1000.0);
                 }
 
                 targetKcal = tdee + adjustment;
@@ -103,24 +101,23 @@ namespace ValensFit.Services.Nutrition
                 {
                     targetKcal = minFloor;
                     adjustment = targetKcal - tdee;
-                    result.SafetyDisclaimers.Add($"Strict metabolic floor applied: Calories set to {minFloor} kcal/day to protect hormonal baseline and avoid nutrient deficiency.");
+                    result.SafetyDisclaimers.Add($"Strict metabolic floor applied: Calories set to {minFloor} kcal/day to protect hormonal health and basal function.");
                 }
 
-                goalDesc = $"Sustainable Fat Loss Deficit ({Math.Abs(adjustment):F0} kcal/day, {Math.Abs(adjustment / tdee * 100):F0}% cut)";
+                goalDesc = $"Caloric Deficit: {Math.Abs(adjustment):F0} kcal/day below maintenance ({tdee:N0} → {targetKcal:N0} kcal) to trigger consistent fat loss.";
             }
             else if (goal == "buildmuscle")
             {
-                // 10-15% surplus, capped at +500 kcal/day
                 double surplus = Math.Min(tdee * 0.12, 500.0);
                 adjustment = surplus;
                 targetKcal = tdee + adjustment;
-                goalDesc = $"Lean Hypertrophy Surplus (+{adjustment:F0} kcal/day, +{adjustment / tdee * 100:F0}%)";
+                goalDesc = $"Lean Hypertrophy Surplus: +{adjustment:F0} kcal/day above maintenance ({tdee:N0} → {targetKcal:N0} kcal) to fuel muscle synthesis.";
             }
             else // Maintain
             {
                 adjustment = 0;
                 targetKcal = tdee;
-                goalDesc = "Iso-Caloric Weight Maintenance & Body Recomposition";
+                goalDesc = $"Maintenance: Exactly matches your daily energy expenditure ({tdee:N0} kcal) for weight stability and body recomposition.";
             }
 
             result.TargetCalories = Math.Round(targetKcal, 0);
@@ -129,12 +126,20 @@ namespace ValensFit.Services.Nutrition
             result.GoalDescription = goalDesc;
 
             // Protein-First Split
-            double proteinFactor = goal switch
+            double proteinFactor;
+            if (goal == "losefat")
             {
-                "losefat" => 2.0,      // 1.8 - 2.2 g/kg
-                "buildmuscle" => 1.8,  // 1.6 - 2.0 g/kg
-                _ => 1.6              // 1.4 - 1.8 g/kg
-            };
+                // If user wants to preserve maximum muscle mass during fat loss, increase protein to 2.2 - 2.4 g/kg!
+                proteinFactor = input.MaximizeMuscleRetention ? 2.2 : 1.9;
+            }
+            else if (goal == "buildmuscle")
+            {
+                proteinFactor = input.MaximizeMuscleRetention ? 2.0 : 1.8;
+            }
+            else
+            {
+                proteinFactor = input.MaximizeMuscleRetention ? 1.9 : 1.6;
+            }
 
             double proteinG = Math.Round(weightKg * proteinFactor, 0);
             double proteinKcal = proteinG * 4.0;

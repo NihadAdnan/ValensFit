@@ -72,9 +72,25 @@ namespace ValensFit.Services.Nutrition
             List<string>? dietTags,
             string? customExclusions,
             string mealSlot,
-            string? category = null)
+            string? category = null,
+            string? country = "Bangladesh")
         {
             var query = _foods.Where(f => f.AllowedMealSlots.Contains(mealSlot, StringComparer.OrdinalIgnoreCase));
+
+            // Regional filtering: if country is Bangladesh or India, prioritize SouthAsia / Global
+            string countryNorm = (country ?? "Bangladesh").ToLowerInvariant();
+            if (countryNorm.Contains("bangladesh") || countryNorm.Contains("india") || countryNorm.Contains("pakistan"))
+            {
+                query = query.Where(f => f.Regions.Contains("SouthAsia") || f.Regions.Contains("Global"));
+            }
+            else if (countryNorm.Contains("united states") || countryNorm.Contains("canada") || countryNorm.Contains("usa"))
+            {
+                query = query.Where(f => f.Regions.Contains("NorthAmerica") || f.Regions.Contains("Global"));
+            }
+            else if (countryNorm.Contains("united kingdom") || countryNorm.Contains("europe") || countryNorm.Contains("uk"))
+            {
+                query = query.Where(f => f.Regions.Contains("Europe") || f.Regions.Contains("Global"));
+            }
 
             if (!string.IsNullOrWhiteSpace(category))
             {
@@ -157,7 +173,7 @@ namespace ValensFit.Services.Nutrition
             var currKey = (currency ?? "BDT").Trim().ToUpperInvariant();
             if (!_prices.ContainsKey(currKey))
             {
-                currKey = _prices.ContainsKey("USD") ? "USD" : _prices.Keys.FirstOrDefault() ?? "BDT";
+                currKey = _prices.ContainsKey("BDT") ? "BDT" : _prices.Keys.FirstOrDefault() ?? "BDT";
             }
 
             if (_prices.TryGetValue(currKey, out var currObj))

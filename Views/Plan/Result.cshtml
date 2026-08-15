@@ -1,49 +1,40 @@
 @model ValensFit.Models.PlanResultModel
 @{
-    ViewData["Title"] = $"{Model.FirstName}'s Imperial Nutrition & Training Scroll";
+    ViewData["Title"] = $"{Model.FirstName}'s Nutrition & Training Plan";
 }
 
 <!-- Master Results Container -->
-<div class="roman-card" id="resultsContainer" style="margin-bottom: 2rem;">
+<div class="clean-card" id="resultsContainer" style="margin-bottom: 2rem;">
 
     <!-- Top Action Bar -->
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;" class="no-print">
-        <a href="/Plan" class="btn-roman-secondary btn-roman" style="font-size: 0.82rem; padding: 0.5rem 1.2rem;">
+        <a href="/Plan" class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 1rem;">
             <span>↺ Start Over</span>
         </a>
-        <div style="display: flex; gap: 0.75rem;">
-            <button type="button" class="btn-roman" onclick="window.print()" style="font-size: 0.85rem; padding: 0.6rem 1.4rem;">
-                <span>📜 Export / Print Scroll</span>
-            </button>
-        </div>
+        <button type="button" class="btn-primary" onclick="window.print()" style="font-size: 0.82rem; padding: 0.5rem 1.25rem;">
+            <span>Export / Print Plan</span>
+        </button>
     </div>
 
     <!-- Header & Greeting -->
-    <div style="text-align: center; margin-bottom: 2rem;">
-        <div class="column-divider">
-            <div class="line"></div>
-            <div class="laurel-icon">❖ VALENSFIT IMPERIAL DECREE ❖</div>
-            <div class="line"></div>
-        </div>
-
-        <h1 style="font-size: 2.4rem; margin-bottom: 0.5rem; line-height: 1.2;">
-            WELCOME, <span class="gold-text">@Model.FirstName.ToUpper()</span>
+    <div style="margin-bottom: 1.75rem;">
+        <h1 style="font-size: 2rem; margin-bottom: 0.35rem; line-height: 1.2;">
+            Nutrition & Training Plan for <span class="brand-accent-text">@Model.FirstName</span>
         </h1>
-        <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 650px; margin: 0 auto;">
-            Here is your deterministic 7-day nutritional blueprint and @Model.ExercisePlan.Preference training regiment.
+        <p style="font-size: 0.95rem; color: var(--text-secondary);">
+            Goal: <strong>@Model.GoalDisplayName</strong> · Calorie target calculated from your daily metabolic baseline.
         </p>
 
-        <!-- Safety / Pace Banner -->
         @if (!string.IsNullOrEmpty(Model.PaceWarning))
         {
-            <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--gold-border); border-radius: var(--radius-sm); padding: 0.85rem 1.25rem; margin: 1.25rem auto 0; max-width: 750px; text-align: left; font-size: 0.88rem; color: var(--gold-light);">
-                <strong>⚡ Metabolic Pace Calibration:</strong> @Model.PaceWarning
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent-amber); border-radius: var(--radius-sm); padding: 0.75rem 1.15rem; margin-top: 1rem; font-size: 0.85rem; color: #FCD34D;">
+                <strong>Pace Calibration:</strong> @Model.PaceWarning
             </div>
         }
 
         @if (Model.IsUnder18 || Model.SafetyDisclaimers.Count > 1)
         {
-            <div style="background: rgba(122, 31, 43, 0.15); border: 1px solid var(--imperial-red); border-radius: var(--radius-sm); padding: 0.85rem 1.25rem; margin: 0.75rem auto 0; max-width: 750px; text-align: left; font-size: 0.82rem; color: #FEB2B2;">
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--accent-crimson); border-radius: var(--radius-sm); padding: 0.75rem 1.15rem; margin-top: 0.65rem; font-size: 0.8rem; color: #FCA5A5;">
                 @foreach (var disclaimer in Model.SafetyDisclaimers)
                 {
                     <div>• @disclaimer</div>
@@ -53,369 +44,396 @@
     </div>
 
     <!-- =================================================================
-         HERO METRICS BANNER (Count-Up Numbers)
+         DYNAMIC SECTION NAVIGATION (No Endless Scrolling!)
          ================================================================= -->
-    <div class="hero-stats-banner">
-        <div class="hero-stat-card">
-            <div class="hero-stat-val count-up" data-target="@Model.TargetCalories">0</div>
-            <div class="hero-stat-label">Daily Calories</div>
-            <div class="hero-stat-sub">BMR: @Model.Bmr.ToString("N0") · TDEE: @Model.Tdee.ToString("N0")</div>
-        </div>
+    <div class="result-section-tabs no-print" id="sectionTabs">
+        <button type="button" class="section-nav-btn active" onclick="ResultView.showSection('overview', this)">
+            📊 Overview & Targets
+        </button>
+        <button type="button" class="section-nav-btn" onclick="ResultView.showSection('meals', this)">
+            🥗 7-Day Meal Schedule
+        </button>
+        <button type="button" class="section-nav-btn" onclick="ResultView.showSection('grocery', this)">
+            🛒 Grocery & Budget (Weekly/Monthly)
+        </button>
+        <button type="button" class="section-nav-btn" onclick="ResultView.showSection('workout', this)">
+            🏋️ Training Routine
+        </button>
+    </div>
 
-        <div class="hero-stat-card">
-            <div class="hero-stat-val count-up" data-target="@Model.ProteinGrams" style="color: #68D391;">0</div>
-            <div class="hero-stat-label">Protein Target</div>
-            <div class="hero-stat-sub">@Model.ProteinPerKg g/kg · @Model.ProteinCalories kcal</div>
-        </div>
-
-        <div class="hero-stat-card">
-            <div class="hero-stat-val count-up" data-target="@Model.CarbGrams" style="color: #63B3ED;">0</div>
-            <div class="hero-stat-label">Carbohydrates</div>
-            <div class="hero-stat-sub">@Model.CarbCalories kcal (Glycogen fuel)</div>
-        </div>
-
-        <div class="hero-stat-card">
-            <div class="hero-stat-val count-up" data-target="@Model.FatGrams" style="color: #F6AD55;">0</div>
-            <div class="hero-stat-label">Essential Fats</div>
-            <div class="hero-stat-sub">@Model.FatPercentage% total kcal · @Model.FatCalories kcal</div>
-        </div>
-
-        <div class="hero-stat-card">
-            <div class="hero-stat-val" style="color: #4FD1C5;">
-                <span class="count-up" data-target="@Model.WaterIntakeLitres">0</span> L
+    <!-- =================================================================
+         SECTION 1: OVERVIEW & GOAL IMPACT METRICS
+         ================================================================= -->
+    <div class="result-section-view" id="secOverview">
+        
+        <!-- Goal Impact Caloric Comparison Box -->
+        <div class="goal-comparison-box">
+            <div>
+                <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">
+                    Goal Impact Breakdown
+                </div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0.2rem 0;">
+                    @Model.GoalAdjustmentDescription
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                    Maintenance Energy (TDEE): <strong>@Model.Tdee.ToString("N0") kcal/day</strong> ➔ Target Goal: <strong class="brand-accent-text">@Model.TargetCalories.ToString("N0") kcal/day</strong>
+                </div>
             </div>
-            <div class="hero-stat-label">Daily Hydration</div>
-            <div class="hero-stat-sub">~@Model.WaterGlasses glasses (250ml)</div>
+            <div style="text-align: right;">
+                <span class="budget-verdict-pill @(Model.CalorieAdjustment < 0 ? "budget-verdict-fits" : (Model.CalorieAdjustment > 0 ? "budget-verdict-tight" : "budget-verdict-fits"))">
+                    @(Model.CalorieAdjustment > 0 ? $"+{Model.CalorieAdjustment:N0} kcal" : $"{Model.CalorieAdjustment:N0} kcal")
+                </span>
+            </div>
+        </div>
+
+        <!-- Hero Stats Banner (Count-Up Numbers) -->
+        <div class="hero-stats-banner">
+            <div class="hero-stat-card">
+                <div class="hero-stat-val count-up" data-target="@Model.TargetCalories">0</div>
+                <div class="hero-stat-label">Daily Goal Target</div>
+                <div class="hero-stat-sub">Maintenance: @Model.Tdee.ToString("N0") kcal</div>
+            </div>
+
+            <div class="hero-stat-card">
+                <div class="hero-stat-val count-up" data-target="@Model.ProteinGrams" style="color: var(--accent-primary);">0</div>
+                <div class="hero-stat-label">Protein (High Protection)</div>
+                <div class="hero-stat-sub">@Model.ProteinPerKg g/kg · @Model.ProteinCalories kcal</div>
+            </div>
+
+            <div class="hero-stat-card">
+                <div class="hero-stat-val count-up" data-target="@Model.CarbGrams" style="color: var(--accent-secondary);">0</div>
+                <div class="hero-stat-label">Carbohydrates</div>
+                <div class="hero-stat-sub">@Model.CarbCalories kcal (Energy fuel)</div>
+            </div>
+
+            <div class="hero-stat-card">
+                <div class="hero-stat-val count-up" data-target="@Model.FatGrams" style="color: var(--accent-amber);">0</div>
+                <div class="hero-stat-label">Essential Fats</div>
+                <div class="hero-stat-sub">@Model.FatPercentage% total kcal · @Model.FatCalories kcal</div>
+            </div>
+
+            <div class="hero-stat-card">
+                <div class="hero-stat-val" style="color: var(--accent-blue);">
+                    <span class="count-up" data-target="@Model.WaterIntakeLitres">0</span> L
+                </div>
+                <div class="hero-stat-label">Daily Water Target</div>
+                <div class="hero-stat-sub">~@Model.WaterGlasses glasses (250ml)</div>
+            </div>
+        </div>
+
+        <!-- Weekly Summary Table -->
+        <div style="margin-top: 1.75rem;">
+            <h3 style="font-size: 1.15rem; margin-bottom: 0.75rem;">Weekly Nutritional Consistency Matrix</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-medium); color: var(--text-muted);">
+                            <th style="padding: 0.65rem;">Day</th>
+                            <th style="padding: 0.65rem;">Focus</th>
+                            <th style="padding: 0.65rem;">Calories</th>
+                            <th style="padding: 0.65rem;">Protein</th>
+                            <th style="padding: 0.65rem;">Carbohydrates</th>
+                            <th style="padding: 0.65rem;">Fats</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.Days)
+                        {
+                            <tr style="border-bottom: 1px solid var(--border-subtle);">
+                                <td style="padding: 0.6rem; font-weight: 700; color: var(--text-primary);">@d.DayName</td>
+                                <td style="padding: 0.6rem; color: var(--text-muted);">@d.DayTheme</td>
+                                <td style="padding: 0.6rem; font-weight: 600;">@d.TotalCalories kcal</td>
+                                <td style="padding: 0.6rem; color: var(--accent-primary);">@d.TotalProtein g</td>
+                                <td style="padding: 0.6rem; color: var(--accent-secondary);">@d.TotalCarbs g</td>
+                                <td style="padding: 0.6rem; color: var(--accent-amber);">@d.TotalFat g</td>
+                            </tr>
+                        }
+                        <tr style="background: rgba(16, 185, 129, 0.08); font-weight: bold; border-top: 2px solid var(--accent-primary);">
+                            <td style="padding: 0.7rem; color: var(--accent-primary);">Weekly Average</td>
+                            <td style="padding: 0.7rem; color: var(--text-secondary);">Target: @Model.TargetCalories kcal</td>
+                            <td style="padding: 0.7rem; color: var(--text-primary);">@Model.WeeklyAvgCalories kcal</td>
+                            <td style="padding: 0.7rem; color: var(--accent-primary);">@Model.WeeklyAvgProtein g</td>
+                            <td style="padding: 0.7rem; color: var(--accent-secondary);">@Model.WeeklyAvgCarbs g</td>
+                            <td style="padding: 0.7rem; color: var(--accent-amber);">@Model.WeeklyAvgFat g</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Column Divider -->
-    <div class="column-divider">
-        <div class="line"></div>
-        <div class="laurel-icon">❖ SECTION I · 7-DAY NUTRITION SCHEDULE ❖</div>
-        <div class="line"></div>
+    <!-- =================================================================
+         SECTION 2: 7-DAY MEAL SCHEDULE
+         ================================================================= -->
+    <div class="result-section-view" id="secMeals" style="display: none;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+            <div>
+                <h2 style="font-size: 1.4rem;">7-Day Meal Schedule</h2>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Select a day to view its balanced breakfast, lunch, and dinner meal portions.</div>
+            </div>
+        </div>
+
+        <!-- Day Selector Tabs -->
+        <div class="day-tabs-wrapper no-print" id="dayTabs">
+            @for (int i = 0; i < Model.Days.Count; i++)
+            {
+                var day = Model.Days[i];
+                <button type="button" class="day-tab-btn @(i == 0 ? "active" : "")" onclick="ResultView.selectDay(@i, this)">
+                    @day.DayName
+                </button>
+            }
+        </div>
+
+        <!-- Day Plans -->
+        <div id="dayPlansContainer">
+            @for (int d = 0; d < Model.Days.Count; d++)
+            {
+                var day = Model.Days[d];
+                <div class="day-plan-card @(d == 0 ? "active" : "")" id="dayPlan_@d" style="@(d == 0 ? "" : "display: none;")">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <h3 style="font-size: 1.2rem; color: var(--accent-primary);">@day.DayName — @day.DayTheme</h3>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); padding: 0.35rem 0.85rem; border-radius: var(--radius-pill); font-size: 0.82rem; font-weight: 600;">
+                            Day Total: <span id="dayTotalKcal_@d">@day.TotalCalories</span> kcal · <span id="dayTotalP_@d" style="color: var(--accent-primary);">@day.TotalProtein g P</span>
+                        </div>
+                    </div>
+
+                    <!-- Meals in Day -->
+                    @foreach (var meal in day.Meals)
+                    {
+                        <div class="meal-card" id="mealCard_@(d)_@(meal.SlotName)">
+                            <div class="meal-header">
+                                <div>
+                                    <div class="meal-title">@meal.SlotName: @meal.Title</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">@meal.TimingGuidance</div>
+                                </div>
+                                <div class="meal-macros-badge" id="mealMacrosBadge_@(d)_@(meal.SlotName)">
+                                    <strong style="color: var(--text-primary);">@meal.ActualCalories kcal</strong> · 
+                                    <span style="color: var(--accent-primary);">@meal.ActualProtein g P</span> · 
+                                    <span style="color: var(--accent-secondary);">@meal.ActualCarbs g C</span> · 
+                                    <span style="color: var(--accent-amber);">@meal.ActualFat g F</span>
+                                </div>
+                            </div>
+
+                            <!-- Food Items List -->
+                            <ul class="food-items-list" id="mealItems_@(d)_@(meal.SlotName)">
+                                @foreach (var item in meal.Items)
+                                {
+                                    <li class="food-item-row" id="itemRow_@(d)_@(meal.SlotName)_@(item.FoodId)">
+                                        <div class="food-name-qty">
+                                            <span style="color: var(--accent-primary);">•</span> @item.FoodName
+                                            <span style="color: var(--text-muted); font-size: 0.82rem; margin-left: 0.35rem;">(@item.DisplayQuantity)</span>
+                                        </div>
+                                        <div class="food-macros-chips">
+                                            <span>@item.Calories kcal</span>
+                                            <span style="color: var(--accent-primary);">@item.Protein g P</span>
+                                            <span style="color: var(--accent-secondary);">@item.Carbs g C</span>
+                                            <button type="button" class="food-swap-btn no-print" onclick="ResultView.openSwapModal('@item.FoodId', '@item.FoodName', '@item.Category', @item.Calories, @item.Protein, '@meal.SlotName', @d)">
+                                                ⇄ Swap
+                                            </button>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+
+                            @if (!string.IsNullOrEmpty(meal.CookingTip))
+                            {
+                                <div class="cooking-tip-box">
+                                    <strong>Prep Tip:</strong> @meal.CookingTip
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+            }
+        </div>
     </div>
 
-    <!-- Day Selector Tabs -->
-    <div class="day-tabs-wrapper no-print" id="dayTabs">
-        @for (int i = 0; i < Model.Days.Count; i++)
-        {
-            var day = Model.Days[i];
-            <button type="button" class="day-tab-btn @(i == 0 ? "active" : "")" onclick="ResultView.selectDay(@i, this)">
-                @day.DayName
-            </button>
-        }
-    </div>
+    <!-- =================================================================
+         SECTION 3: GROCERY & BUDGET BREAKDOWN (Weekly + Monthly)
+         ================================================================= -->
+    <div class="result-section-view" id="secGrocery" style="display: none;">
+        
+        <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                    <h2 style="font-size: 1.4rem;">Weekly & Monthly Grocery Budget</h2>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Regional price index grounded to local market staples.</div>
+                </div>
+                <div class="budget-verdict-pill budget-verdict-@Model.GroceryBudget.Verdict">
+                    <span>@Model.GroceryBudget.VerdictTitle</span>
+                </div>
+            </div>
 
-    <!-- 7 Day Meal Plans (Only active day is visible on screen, all print on media print) -->
-    <div id="dayPlansContainer">
-        @for (int d = 0; d < Model.Days.Count; d++)
-        {
-            var day = Model.Days[d];
-            <div class="day-plan-card @(d == 0 ? "active" : "")" id="dayPlan_@d" style="@(d == 0 ? "" : "display: none;")">
-                
+            <!-- Notes -->
+            <p style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                @Model.GroceryBudget.Notes
+            </p>
+
+            <!-- Cost Summary Strip -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1.15rem; border-radius: var(--radius-sm); text-align: center;">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Est. Weekly Grocery Cost</div>
+                    <div style="font-family: var(--font-heading); font-size: 1.7rem; font-weight: 800; color: var(--accent-primary); margin-top: 0.2rem;">
+                        @Model.GroceryBudget.Currency @Model.GroceryBudget.EstimatedWeeklyCost.ToString("N0")
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1.15rem; border-radius: var(--radius-sm); text-align: center;">
+                    <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Est. Monthly Total Cost</div>
+                    <div style="font-family: var(--font-heading); font-size: 1.7rem; font-weight: 800; color: var(--text-primary); margin-top: 0.2rem;">
+                        @Model.GroceryBudget.Currency @Model.GroceryBudget.EstimatedMonthlyCost.ToString("N0")
+                    </div>
+                </div>
+
+                @if (Model.GroceryBudget.UserMonthlyBudget.HasValue && Model.GroceryBudget.UserMonthlyBudget > 0)
+                {
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1.15rem; border-radius: var(--radius-sm); text-align: center;">
+                        <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Declared Target Budget</div>
+                        <div style="font-family: var(--font-heading); font-size: 1.7rem; font-weight: 800; color: var(--accent-secondary); margin-top: 0.2rem;">
+                            @Model.GroceryBudget.Currency @Model.GroceryBudget.UserMonthlyBudget.Value.ToString("N0")
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Cost-Saving Recommendations -->
+            @if (Model.GroceryBudget.SwapSuggestions.Count > 0)
+            {
+                <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid var(--accent-border); border-radius: var(--radius-sm); padding: 1.15rem; margin-bottom: 1.5rem;">
+                    <div style="font-weight: 700; font-size: 0.9rem; color: var(--accent-primary); margin-bottom: 0.4rem;">
+                        💡 Budget Optimization Tips:
+                    </div>
+                    <ul style="padding-left: 1.2rem; font-size: 0.85rem; color: var(--text-secondary);">
+                        @foreach (var tip in Model.GroceryBudget.SwapSuggestions)
+                        {
+                            <li style="margin-bottom: 0.25rem;">@tip</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <!-- 7-Day Shopping Cart Checklist -->
+            <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.5rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
-                        <h3 style="font-size: 1.35rem; color: var(--gold-light);">@day.DayName</h3>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">@day.DayTheme</div>
+                        <h3 style="font-size: 1.15rem;">7-Day Shopping Cart Breakdown</h3>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Weekly food requirements and estimated cost by category.</div>
                     </div>
-                    <div style="background: rgba(212, 175, 55, 0.1); border: 1px solid var(--border-gold); padding: 0.4rem 1rem; border-radius: var(--radius-pill); font-size: 0.85rem; color: var(--gold-light); font-weight: 700;">
-                        Daily Totals: @day.TotalCalories kcal · @day.TotalProtein g P · @day.TotalCarbs g C · @day.TotalFat g F
-                    </div>
+                    <button type="button" class="btn-secondary no-print" onclick="ResultView.copyGroceryList()" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;">
+                        📋 Copy List
+                    </button>
                 </div>
 
-                <!-- Meals in Day -->
-                @foreach (var meal in day.Meals)
+                @{
+                    var grouped = Model.GroceryBudget.Items.GroupBy(i => i.Category).ToList();
+                }
+
+                @foreach (var group in grouped)
                 {
-                    <div class="meal-card">
-                        <div class="meal-header">
-                            <div>
-                                <div class="meal-title">@meal.SlotName — @meal.Title</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted);">@meal.TimingGuidance</div>
-                            </div>
-                            <div class="meal-macros-badge">
-                                <strong style="color: var(--text-primary);">@meal.ActualCalories kcal</strong> · 
-                                <span style="color: #68D391;">@meal.ActualProtein g P</span> · 
-                                <span style="color: #63B3ED;">@meal.ActualCarbs g C</span> · 
-                                <span style="color: #F6AD55;">@meal.ActualFat g F</span>
-                            </div>
+                    <div class="grocery-category-block">
+                        <div class="grocery-category-title">
+                            @group.Key
                         </div>
-
-                        <!-- Food Items List -->
-                        <ul class="food-items-list" id="mealItems_@(d)_@(meal.SlotName)">
-                            @foreach (var item in meal.Items)
-                            {
-                                <li class="food-item-row" id="itemRow_@(item.FoodId)">
-                                    <div class="food-name-qty">
-                                        <span style="color: var(--gold-light);">✦</span> @item.FoodName
-                                        <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 0.4rem;">(@item.DisplayQuantity)</span>
-                                    </div>
-                                    <div class="food-macros-chips">
-                                        <span>@item.Calories kcal</span>
-                                        <span style="color: #68D391;">@item.Protein g P</span>
-                                        <span style="color: #63B3ED;">@item.Carbs g C</span>
-                                        <span style="color: #F6AD55;">@item.Fat g F</span>
-                                        <button type="button" class="food-swap-btn no-print" onclick="ResultView.openSwapModal('@item.FoodId', '@item.FoodName', '@item.Category', @item.Calories, @item.Protein, '@meal.SlotName', @d)">
-                                            ⇄ Swap
-                                        </button>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-
-                        @if (!string.IsNullOrEmpty(meal.CookingTip))
+                        @foreach (var item in group)
                         {
-                            <div class="cooking-tip-box">
-                                <strong>👨‍🍳 Preparation Tip:</strong> @meal.CookingTip
-                            </div>
-                        }
-                    </div>
-                }
-
-            </div>
-        }
-    </div>
-
-    <!-- =================================================================
-         WEEKLY NUTRITION MATRIX TABLE
-         ================================================================= -->
-    <div class="column-divider" style="margin-top: 3rem;">
-        <div class="line"></div>
-        <div class="laurel-icon">❖ WEEKLY NUTRITIONAL ACCURACY MATRIX ❖</div>
-        <div class="line"></div>
-    </div>
-
-    <div style="overflow-x: auto; margin: 1.5rem 0;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
-            <thead>
-                <tr style="border-bottom: 1px solid var(--border-gold); color: var(--gold-antique); font-family: var(--font-roman);">
-                    <th style="padding: 0.75rem;">Day</th>
-                    <th style="padding: 0.75rem;">Theme</th>
-                    <th style="padding: 0.75rem;">Calories</th>
-                    <th style="padding: 0.75rem;">Protein</th>
-                    <th style="padding: 0.75rem;">Carbohydrates</th>
-                    <th style="padding: 0.75rem;">Fats</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var d in Model.Days)
-                {
-                    <tr style="border-bottom: 1px solid var(--border-subtle);">
-                        <td style="padding: 0.65rem; font-weight: 700; color: var(--gold-light);">@d.DayName</td>
-                        <td style="padding: 0.65rem; color: var(--text-muted);">@d.DayTheme</td>
-                        <td style="padding: 0.65rem; font-weight: 600;">@d.TotalCalories kcal</td>
-                        <td style="padding: 0.65rem; color: #68D391;">@d.TotalProtein g</td>
-                        <td style="padding: 0.65rem; color: #63B3ED;">@d.TotalCarbs g</td>
-                        <td style="padding: 0.65rem; color: #F6AD55;">@d.TotalFat g</td>
-                    </tr>
-                }
-                <tr style="background: rgba(212, 175, 55, 0.08); font-weight: bold; border-top: 2px solid var(--border-gold);">
-                    <td style="padding: 0.75rem; color: var(--gold-primary);">Weekly Average</td>
-                    <td style="padding: 0.75rem; color: var(--text-secondary);">Target: @Model.TargetCalories kcal</td>
-                    <td style="padding: 0.75rem; color: var(--text-primary);">@Model.WeeklyAvgCalories kcal</td>
-                    <td style="padding: 0.75rem; color: #68D391;">@Model.WeeklyAvgProtein g</td>
-                    <td style="padding: 0.75rem; color: #63B3ED;">@Model.WeeklyAvgCarbs g</td>
-                    <td style="padding: 0.75rem; color: #F6AD55;">@Model.WeeklyAvgFat g</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- =================================================================
-         GROCERY SHOPPING LIST & BUDGET VERDICT
-         ================================================================= -->
-    <div class="column-divider" style="margin-top: 3.5rem;">
-        <div class="line"></div>
-        <div class="laurel-icon">❖ SECTION II · GROCERY & LOCAL BUDGET VERDICT ❖</div>
-        <div class="line"></div>
-    </div>
-
-    <div style="margin: 1.5rem 0;">
-        <!-- Budget Verdict Stamped Wax Seal -->
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-            <div class="wax-seal-badge wax-seal-@Model.GroceryBudget.Verdict">
-                <span>❖</span>
-                <span>@Model.GroceryBudget.VerdictTitle</span>
-                <span>❖</span>
-            </div>
-            <div style="font-size: 0.95rem; color: var(--text-secondary); max-width: 650px; margin: 0.5rem auto;">
-                @Model.GroceryBudget.Notes
-            </div>
-            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;">
-                Pricing Source: <span style="color: var(--gold-antique);">@Model.GroceryBudget.Source</span>
-            </div>
-        </div>
-
-        <!-- Budget Stats Strip -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-sm); text-align: center;">
-                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--gold-antique); font-weight: 700;">Est. Weekly Grocery Cost</div>
-                <div style="font-family: var(--font-roman); font-size: 1.8rem; font-weight: 800; color: var(--gold-light); margin-top: 0.25rem;">
-                    @Model.GroceryBudget.Currency @Model.GroceryBudget.EstimatedWeeklyCost.ToString("N0")
-                </div>
-            </div>
-
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-sm); text-align: center;">
-                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--gold-antique); font-weight: 700;">Est. Monthly Expenditure</div>
-                <div style="font-family: var(--font-roman); font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-top: 0.25rem;">
-                    @Model.GroceryBudget.Currency @Model.GroceryBudget.EstimatedMonthlyCost.ToString("N0")
-                </div>
-            </div>
-
-            @if (Model.GroceryBudget.UserMonthlyBudget.HasValue && Model.GroceryBudget.UserMonthlyBudget > 0)
-            {
-                <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-sm); text-align: center;">
-                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--gold-antique); font-weight: 700;">Declared Budget Allocation</div>
-                    <div style="font-family: var(--font-roman); font-size: 1.8rem; font-weight: 800; color: var(--gold-primary); margin-top: 0.25rem;">
-                        @Model.GroceryBudget.Currency @Model.GroceryBudget.UserMonthlyBudget.Value.ToString("N0")
-                    </div>
-                </div>
-            }
-        </div>
-
-        <!-- Swap Suggestions & Optimization Notes -->
-        @if (Model.GroceryBudget.SwapSuggestions.Count > 0)
-        {
-            <div style="background: rgba(212, 175, 55, 0.06); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 2rem;">
-                <div style="font-family: var(--font-roman); font-weight: 700; font-size: 0.95rem; color: var(--gold-light); margin-bottom: 0.5rem;">
-                    💡 Budget Optimization & Cost-Saving Swaps:
-                </div>
-                <ul style="padding-left: 1.25rem; font-size: 0.88rem; color: var(--text-secondary);">
-                    @foreach (var swap in Model.GroceryBudget.SwapSuggestions)
-                    {
-                        <li style="margin-bottom: 0.35rem;">@swap</li>
-                    }
-                </ul>
-            </div>
-        }
-
-        <!-- Interactive Grocery Shopping Checklist -->
-        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-gold); border-radius: var(--radius-md); padding: 1.75rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
-                <div>
-                    <h3 style="font-size: 1.25rem; color: var(--gold-light);">7-Day Shopping Cart Checklist</h3>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Exact aggregated weekly quantities needed for your meal schedule.</div>
-                </div>
-                <button type="button" class="btn-roman-secondary btn-roman no-print" onclick="ResultView.copyGroceryList()" style="font-size: 0.8rem; padding: 0.45rem 1rem;">
-                    📋 Copy Checklist
-                </button>
-            </div>
-
-            <!-- Group items by category -->
-            @{
-                var grouped = Model.GroceryBudget.Items.GroupBy(i => i.Category).ToList();
-            }
-
-            @foreach (var group in grouped)
-            {
-                <div class="grocery-category-block">
-                    <div class="grocery-category-title">
-                        <span>❖</span> @group.Key.ToUpper()
-                    </div>
-                    @foreach (var item in group)
-                    {
-                        <div class="checklist-item" id="chkItem_@(item.FoodId)">
-                            <label class="checklist-label">
-                                <input type="checkbox" class="checklist-checkbox" onchange="ResultView.toggleChecklistItem(this)" />
-                                <span>
-                                    <strong>@item.FoodName</strong>: 
-                                    <span style="color: var(--gold-light);">@item.DisplayWeeklyQuantity</span>
+                            <div class="checklist-item" id="chkItem_@(item.FoodId)">
+                                <label class="checklist-label">
+                                    <input type="checkbox" class="checklist-checkbox" onchange="ResultView.toggleChecklistItem(this)" />
+                                    <span>
+                                        <strong>@item.FoodName</strong>: 
+                                        <span style="color: var(--accent-primary);">@item.DisplayWeeklyQuantity</span>
+                                    </span>
+                                </label>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                                    Weekly: ~@item.Currency @item.TotalCost.ToString("N0") | Mo: ~@item.Currency @item.EstimatedMonthlyCost.ToString("N0")
                                 </span>
-                            </label>
-                            <span style="font-size: 0.82rem; color: var(--text-muted);">
-                                ~@item.Currency @item.TotalCost.ToString("N0")
-                            </span>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-    </div>
-
-    <!-- =================================================================
-         EXERCISE & TRAINING REGIMENT
-         ================================================================= -->
-    <div class="column-divider" style="margin-top: 3.5rem;">
-        <div class="line"></div>
-        <div class="laurel-icon">❖ SECTION III · TRAINING REGIMENT ❖</div>
-        <div class="line"></div>
-    </div>
-
-    <div style="margin: 1.5rem 0;">
-        <div style="text-align: center; margin-bottom: 1.75rem;">
-            <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;">@Model.ExercisePlan.ProgramTitle</h2>
-            <p style="font-size: 0.95rem; color: var(--text-secondary); max-width: 680px; margin: 0 auto;">
-                @Model.ExercisePlan.Rationale
-            </p>
-            @if (!string.IsNullOrEmpty(Model.ExercisePlan.WalkingRationale))
-            {
-                <div style="font-size: 0.85rem; color: var(--gold-antique); margin-top: 0.5rem;">
-                    🚶 @Model.ExercisePlan.WalkingRationale
-                </div>
-            }
-        </div>
-
-        <!-- Training Schedule -->
-        @foreach (var workoutDay in Model.ExercisePlan.Schedule)
-        {
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.65rem;">
-                    <div>
-                        <h3 style="font-size: 1.15rem; color: var(--gold-light);">@workoutDay.DayTitle</h3>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Focus: @workoutDay.Focus · ~@workoutDay.EstimatedMinutes min</div>
-                    </div>
-                    @if (workoutDay.IsRestDay)
-                    {
-                        <span style="background: rgba(104, 211, 145, 0.15); color: #68D391; border: 1px solid #68D391; padding: 0.25rem 0.75rem; border-radius: var(--radius-pill); font-size: 0.78rem; font-weight: 700;">
-                            ACTIVE RECOVERY
-                        </span>
-                    }
-                </div>
-
-                <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">
-                    <strong>🔥 Warm-Up:</strong> @workoutDay.Warmup
-                </div>
-
-                <!-- Exercises -->
-                @foreach (var ex in workoutDay.Exercises)
-                {
-                    <div class="workout-exercise-card">
-                        <div class="workout-exercise-title">
-                            <span>@ex.Name</span>
-                            <span class="workout-exercise-target">@ex.TargetMuscle</span>
-                        </div>
-                        <div class="workout-stats-strip">
-                            <span><strong>Sets:</strong> @ex.Sets</span>
-                            <span><strong>Reps:</strong> @ex.Reps</span>
-                            @if (ex.RestSeconds > 0)
-                            {
-                                <span><strong>Rest:</strong> @ex.RestSeconds sec</span>
-                            }
-                        </div>
-                        <div class="workout-form-cue">
-                            " @ex.FormCue "
-                        </div>
-                        @if (!string.IsNullOrEmpty(ex.Regression))
-                        {
-                            <div style="font-size: 0.75rem; color: #ECC94B; margin-top: 0.35rem;">
-                                ↳ <em>Beginner Regression:</em> @ex.Regression
                             </div>
                         }
                     </div>
                 }
-
-                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.75rem;">
-                    <strong>❄️ Cool-Down:</strong> @workoutDay.Cooldown
-                </div>
             </div>
-        }
+        </div>
     </div>
 
-    <!-- Master Bottom Action Bar -->
-    <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-subtle);" class="no-print">
-        <button type="button" class="btn-roman" onclick="window.print()" style="font-size: 1.05rem; padding: 1rem 2.5rem;">
-            <span>📜 Print / Save Imperial Scroll</span>
-        </button>
+    <!-- =================================================================
+         SECTION 4: TRAINING & WORKOUT SCHEDULE
+         ================================================================= -->
+    <div class="result-section-view" id="secWorkout" style="display: none;">
+        
+        <div style="margin-bottom: 1.5rem;">
+            <div style="margin-bottom: 1.25rem;">
+                <h2 style="font-size: 1.4rem; margin-bottom: 0.35rem;">@Model.ExercisePlan.ProgramTitle</h2>
+                <p style="font-size: 0.92rem; color: var(--text-secondary);">
+                    @Model.ExercisePlan.Rationale
+                </p>
+                @if (!string.IsNullOrEmpty(Model.ExercisePlan.WalkingRationale))
+                {
+                    <div style="font-size: 0.85rem; color: var(--accent-primary); margin-top: 0.45rem;">
+                        🚶 @Model.ExercisePlan.WalkingRationale
+                    </div>
+                }
+            </div>
+
+            <!-- Training Schedule Days -->
+            @foreach (var workoutDay in Model.ExercisePlan.Schedule)
+            {
+                <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.35rem; margin-bottom: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+                        <div>
+                            <h3 style="font-size: 1.05rem; color: var(--text-primary);">@workoutDay.DayTitle</h3>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">Focus: @workoutDay.Focus · ~@workoutDay.EstimatedMinutes min</div>
+                        </div>
+                        @if (workoutDay.IsRestDay)
+                        {
+                            <span style="background: rgba(16, 185, 129, 0.12); color: var(--accent-primary); border: 1px solid var(--accent-primary); padding: 0.2rem 0.65rem; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 700;">
+                                RECOVERY
+                            </span>
+                        }
+                    </div>
+
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        <strong>Warm-Up:</strong> @workoutDay.Warmup
+                    </div>
+
+                    <!-- Exercises -->
+                    @foreach (var ex in workoutDay.Exercises)
+                    {
+                        <div class="workout-exercise-card">
+                            <div class="workout-exercise-title">
+                                <span>@ex.Name</span>
+                                <span class="workout-exercise-target">@ex.TargetMuscle</span>
+                            </div>
+                            <div class="workout-stats-strip">
+                                <span><strong>Sets:</strong> @ex.Sets</span>
+                                <span><strong>Reps:</strong> @ex.Reps</span>
+                                @if (ex.RestSeconds > 0)
+                                {
+                                    <span><strong>Rest:</strong> @ex.RestSeconds sec</span>
+                                }
+                            </div>
+                            <div class="workout-form-cue">
+                                "@ex.FormCue"
+                            </div>
+                            @if (!string.IsNullOrEmpty(ex.Regression))
+                            {
+                                <div style="font-size: 0.75rem; color: var(--accent-amber); margin-top: 0.25rem;">
+                                    ↳ <em>Beginner Regression:</em> @ex.Regression
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.65rem;">
+                        <strong>Cool-Down:</strong> @workoutDay.Cooldown
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 
 </div>
@@ -425,23 +443,23 @@
      ================================================================= -->
 <div class="swap-modal-backdrop" id="swapModal">
     <div class="swap-modal-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-gold); padding-bottom: 0.75rem;">
-            <h3 style="font-size: 1.2rem; color: var(--gold-light);">Swap Food Item</h3>
-            <button type="button" onclick="ResultView.closeSwapModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem;">
+            <h3 style="font-size: 1.1rem;">Swap Food Item</h3>
+            <button type="button" onclick="ResultView.closeSwapModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer;">&times;</button>
         </div>
 
-        <div style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;" id="swapOriginalText">
-            Replacing: <strong>Chicken Breast (180g)</strong>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;" id="swapOriginalText">
+            Replacing food item...
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="swapFoodSelect">Select Alternative Food</label>
+            <label class="form-label" for="swapFoodSelect">Select Replacement</label>
             <select id="swapFoodSelect" class="form-select"></select>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-            <button type="button" class="btn-roman-secondary btn-roman" onclick="ResultView.closeSwapModal()">Cancel</button>
-            <button type="button" class="btn-roman" onclick="ResultView.executeFoodSwap()">Calibrate & Swap</button>
+        <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.25rem;">
+            <button type="button" class="btn-secondary" onclick="ResultView.closeSwapModal()">Cancel</button>
+            <button type="button" class="btn-primary" onclick="ResultView.executeFoodSwap()">Calibrate & Swap</button>
         </div>
     </div>
 </div>
