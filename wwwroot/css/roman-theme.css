@@ -164,15 +164,16 @@ h1, h2, h3, h4 {
   font-weight: 700;
 }
 
-/* Card Surface */
+/* Card Surface - Compact, Natural Height */
 .clean-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 2rem;
+  padding: 1.75rem 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   position: relative;
   overflow: hidden;
+  height: auto;
 }
 
 /* Wizard Progress Track */
@@ -180,7 +181,7 @@ h1, h2, h3, h4 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
   position: relative;
 }
 
@@ -443,7 +444,7 @@ h1, h2, h3, h4 {
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
-  min-height: 48px; /* Touch target */
+  min-height: 46px; /* Touch target */
 }
 
 .btn-primary:hover {
@@ -467,7 +468,7 @@ h1, h2, h3, h4 {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  min-height: 48px;
+  min-height: 46px;
 }
 
 .btn-secondary:hover {
@@ -480,8 +481,8 @@ h1, h2, h3, h4 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.75rem;
-  padding-top: 1.25rem;
+  margin-top: 1.5rem;
+  padding-top: 1.15rem;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -491,7 +492,7 @@ h1, h2, h3, h4 {
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
-  margin: 1.25rem 0 0.5rem;
+  margin: 1rem 0 0.25rem;
 }
 
 .sample-chip {
@@ -596,7 +597,7 @@ h1, h2, h3, h4 {
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
-  min-height: 42px;
+  min-height: 40px;
 }
 
 .section-nav-btn:hover {
@@ -610,11 +611,11 @@ h1, h2, h3, h4 {
   border-color: var(--accent-primary);
 }
 
-/* Hero Stats Banner */
+/* Hero Stats Banner - Balanced 5-Column Grid */
 .hero-stats-banner {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
   margin: 1.25rem 0 1.75rem;
 }
 
@@ -622,7 +623,7 @@ h1, h2, h3, h4 {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 1.15rem 0.9rem;
+  padding: 1.15rem 0.85rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -632,7 +633,7 @@ h1, h2, h3, h4 {
 
 .hero-stat-val {
   font-family: var(--font-heading);
-  font-size: 1.85rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1.1;
@@ -940,6 +941,12 @@ h1, h2, h3, h4 {
    MOBILE & RESPONSIVE BREAKPOINTS (iOS & Android Optimization)
    ========================================================================== */
 
+@media (max-width: 960px) {
+  .hero-stats-banner {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .app-nav {
     padding: 0.8rem 1rem;
@@ -966,7 +973,7 @@ h1, h2, h3, h4 {
     min-height: 95px;
   }
   .hero-stats-banner {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.65rem;
   }
   .hero-stat-val {

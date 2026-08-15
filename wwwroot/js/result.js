@@ -21,13 +21,14 @@ const ResultView = (() => {
         });
 
         // Show selected section view
-        const targetSec = sectionKey switch {
-            'overview' => document.getElementById('secOverview'),
-            'meals' => document.getElementById('secMeals'),
-            'grocery' => document.getElementById('secGrocery'),
-            'workout' => document.getElementById('secWorkout'),
-            _ => document.getElementById('secOverview')
-        };
+        let targetSec = document.getElementById('secOverview');
+        if (sectionKey === 'meals') {
+            targetSec = document.getElementById('secMeals');
+        } else if (sectionKey === 'grocery') {
+            targetSec = document.getElementById('secGrocery');
+        } else if (sectionKey === 'workout') {
+            targetSec = document.getElementById('secWorkout');
+        }
 
         if (targetSec) {
             targetSec.style.display = 'block';
