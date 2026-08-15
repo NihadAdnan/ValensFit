@@ -35,43 +35,34 @@ namespace ValensFit.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Generate([FromBody] UserInputModel? jsonModel, [FromForm] UserInputModel? formModel)
+        public async Task<IActionResult> Generate([FromBody] UserInputModel? model)
         {
-            var model = jsonModel ?? formModel ?? new UserInputModel();
+            var input = model ?? new UserInputModel();
 
-            if (!ModelState.IsValid)
+            // Default or clamp key fields safely
+            if (string.IsNullOrWhiteSpace(input.FirstName))
             {
-                if (Request.Headers["Accept"].ToString().Contains("application/json") || jsonModel != null)
-                {
-                    return BadRequest(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
-                }
-                return View("Wizard", model);
+                input.FirstName = "Friend";
+            }
+            if (input.Age < 13 || input.Age > 80)
+            {
+                input.Age = Math.Clamp(input.Age, 13, 80);
             }
 
             try
             {
-                var plan = await _planCalculator.GenerateComprehensivePlanAsync(model);
+                var plan = await _planCalculator.GenerateComprehensivePlanAsync(input);
 
-                // Store temporarily in session for result navigation or print export
+                // Store in session for result retrieval
                 var json = JsonSerializer.Serialize(plan);
                 HttpContext.Session.SetString(PlanSessionKey, json);
 
-                if (Request.Headers["Accept"].ToString().Contains("application/json") || jsonModel != null)
-                {
-                    return Ok(new { success = true, plan = plan });
-                }
-
-                return View("Result", plan);
+                return Ok(new { success = true, plan = plan });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error generating plan for user {Name}", model.FirstName);
-                if (jsonModel != null || Request.Headers["Accept"].ToString().Contains("application/json"))
-                {
-                    return StatusCode(500, new { success = false, message = "An error occurred while forging your plan. Please retry." });
-                }
-                ModelState.AddModelError("", "Calculation error. Please check your inputs.");
-                return View("Wizard", model);
+                _logger.LogError(ex, "Error generating plan for user {Name}", input.FirstName);
+                return StatusCode(500, new { success = false, message = "Calculation error: " + ex.Message });
             }
         }
 
@@ -84,8 +75,17 @@ namespace ValensFit.Controllers
                 return RedirectToAction("Index");
             }
 
-            var plan = JsonSerializer.Deserialize<PlanResultModel>(json);
-            return View("Result", plan);
+            try
+            {
+                var plan = JsonSerializer.Deserialize<PlanResultModel>(json);
+                if (plan == null) return RedirectToAction("Index");
+                return View("Result", plan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize active plan from session.");
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpPost]
@@ -138,6 +138,7 @@ namespace ValensFit.Controllers
                     WeightUnit = "kg",
                     ActivityLevel = "ModeratelyActive",
                     Goal = "LoseFat",
+                    MaximizeMuscleRetention = true,
                     TargetWeightLossKg = 6,
                     TimeframeWeeks = 10,
                     Country = "Bangladesh",
@@ -149,7 +150,8 @@ namespace ValensFit.Controllers
                     MinutesPerSession = 50,
                     DaysPerWeek = 4,
                     ExperienceLevel = "Beginner",
-                    OfficeLunch = true
+                    OfficeLunch = true,
+                    OfficeLunchDescription = "Rice with chicken curry (1 piece)"
                 },
                 "hypertrophy" => new UserInputModel
                 {
@@ -162,6 +164,7 @@ namespace ValensFit.Controllers
                     WeightUnit = "kg",
                     ActivityLevel = "VeryActive",
                     Goal = "BuildMuscle",
+                    MaximizeMuscleRetention = true,
                     Country = "United States",
                     CityRegion = "Chicago",
                     MonthlyBudget = 350,

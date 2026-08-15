@@ -1,5 +1,5 @@
 /**
- * ValensFit — Wizard Engine
+ * ValensFit — Wizard Engine & Strict Step Validation
  */
 const Wizard = (() => {
     let currentStep = 0;
@@ -28,6 +28,34 @@ const Wizard = (() => {
                 }
             });
         }
+
+        // Clear validation errors on input
+        ['FirstName', 'Age', 'Height', 'Weight'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => clearError(id));
+            }
+        });
+    }
+
+    function showError(fieldId, customMsg) {
+        const input = document.getElementById(fieldId);
+        const msgEl = document.getElementById(`valMsg_${fieldId}`);
+        if (input) {
+            input.classList.add('input-error');
+            input.focus();
+        }
+        if (msgEl) {
+            if (customMsg) msgEl.textContent = customMsg;
+            msgEl.style.display = 'block';
+        }
+    }
+
+    function clearError(fieldId) {
+        const input = document.getElementById(fieldId);
+        const msgEl = document.getElementById(`valMsg_${fieldId}`);
+        if (input) input.classList.remove('input-error');
+        if (msgEl) msgEl.style.display = 'none';
     }
 
     function goToStep(stepNumber) {
@@ -72,25 +100,85 @@ const Wizard = (() => {
 
     function validateStep1() {
         const nameInput = document.getElementById('FirstName');
-        if (!nameInput || !nameInput.value.trim()) {
-            alert('Please enter your first name.');
-            nameInput?.focus();
-            return;
+        const nameVal = nameInput ? nameInput.value.trim() : '';
+
+        if (!nameVal) {
+            showError('FirstName', 'Please enter your first name.');
+            return false;
         }
+
+        clearError('FirstName');
         goToStep(2);
+        return true;
     }
 
     function validateStep2() {
-        const age = parseInt(document.getElementById('Age').value, 10);
+        let isValid = true;
+
+        // 1. Age validation
+        const ageInput = document.getElementById('Age');
+        const age = parseInt(ageInput?.value, 10);
         if (isNaN(age) || age < 13 || age > 80) {
-            alert('Age must be between 13 and 80.');
-            return;
+            showError('Age', 'Please enter an age between 13 and 80.');
+            isValid = false;
+        } else {
+            clearError('Age');
         }
+
+        // 2. Height validation
+        const heightUnit = document.getElementById('HeightUnit')?.value || 'cm';
+        let heightCm = 0;
+        if (heightUnit === 'cm') {
+            const h = parseFloat(document.getElementById('Height')?.value);
+            if (isNaN(h) || h < 100 || h > 250) {
+                showError('Height', 'Please enter a valid height (100–250 cm).');
+                isValid = false;
+            } else {
+                clearError('Height');
+                heightCm = h;
+            }
+        } else {
+            const ft = parseFloat(document.getElementById('HeightFt')?.value);
+            const inches = parseFloat(document.getElementById('HeightInches')?.value) || 0;
+            if (isNaN(ft) || ft < 3 || ft > 8) {
+                showError('Height', 'Please enter a valid height (3–8 ft).');
+                isValid = false;
+            } else {
+                clearError('Height');
+                heightCm = ((ft * 12) + inches) * 2.54;
+            }
+        }
+
+        // 3. Weight validation
+        const weightUnit = document.getElementById('WeightUnit')?.value || 'kg';
+        const weightVal = parseFloat(document.getElementById('Weight')?.value);
+        if (isNaN(weightVal) || (weightUnit === 'kg' && (weightVal < 25 || weightVal > 300)) || (weightUnit === 'lb' && (weightVal < 55 || weightVal > 660))) {
+            showError('Weight', `Please enter a valid weight (${weightUnit === 'kg' ? '25–300 kg' : '55–660 lbs'}).`);
+            isValid = false;
+        } else {
+            clearError('Weight');
+        }
+
+        // 4. Biological Sex check
+        const gender = document.getElementById('Gender')?.value;
+        if (!gender || (gender !== 'Male' && gender !== 'Female')) {
+            document.getElementById('Gender').value = 'Male';
+        }
+
+        if (!isValid) return false;
+
         goToStep(3);
+        return true;
     }
 
     function validateStep3() {
+        const country = document.getElementById('Country')?.value;
+        if (!country) {
+            alert('Please select your country.');
+            return false;
+        }
         goToStep(4);
+        return true;
     }
 
     function setGender(gender, element) {
@@ -235,12 +323,14 @@ const Wizard = (() => {
             document.getElementById('ActivityLevel').value = data.activityLevel;
             document.querySelectorAll('#step2 .select-card').forEach(c => {
                 if (c.innerText.includes(data.activityLevel)) c.classList.add('selected');
+                else c.classList.remove('selected');
             });
         }
         if (data.goal) {
             document.getElementById('Goal').value = data.goal;
             document.querySelectorAll('#step2 .select-card').forEach(c => {
                 if (c.innerText.includes(data.goal)) c.classList.add('selected');
+                else c.classList.remove('selected');
             });
         }
         if (data.country) {
@@ -252,6 +342,9 @@ const Wizard = (() => {
         if (data.officeLunch) {
             document.getElementById('OfficeLunch').checked = data.officeLunch;
             toggleOfficeLunch(true);
+            if (data.officeLunchDescription) {
+                document.getElementById('OfficeLunchDescription').value = data.officeLunchDescription;
+            }
         }
 
         if (data.exercisePreference) {
@@ -282,40 +375,44 @@ const Wizard = (() => {
     async function submitAndGenerate() {
         goToStep(5);
 
-        animateGenStep('genStep1', 500);
-        animateGenStep('genStep2', 1000);
-        animateGenStep('genStep3', 1500);
-        animateGenStep('genStep4', 2000);
-        animateGenStep('genStep5', 2500);
+        animateGenStep('genStep1', 300);
+        animateGenStep('genStep2', 600);
+        animateGenStep('genStep3', 900);
+        animateGenStep('genStep4', 1200);
+        animateGenStep('genStep5', 1500);
+
+        const heightVal = parseFloat(document.getElementById('Height')?.value) || 175;
+        const weightVal = parseFloat(document.getElementById('Weight')?.value) || 70;
+        const nameVal = document.getElementById('FirstName')?.value?.trim() || 'Friend';
 
         const payload = {
-            firstName: document.getElementById('FirstName').value.trim() || 'Friend',
-            gender: document.getElementById('Gender').value || 'Male',
-            age: parseInt(document.getElementById('Age').value, 10) || 25,
-            height: parseFloat(document.getElementById('Height').value) || 175,
-            heightUnit: document.getElementById('HeightUnit').value || 'cm',
+            firstName: nameVal,
+            gender: document.getElementById('Gender')?.value || 'Male',
+            age: parseInt(document.getElementById('Age')?.value, 10) || 25,
+            height: heightVal,
+            heightUnit: document.getElementById('HeightUnit')?.value || 'cm',
             heightInches: parseFloat(document.getElementById('HeightInches')?.value) || 0,
-            weight: parseFloat(document.getElementById('Weight').value) || 70,
-            weightUnit: document.getElementById('WeightUnit').value || 'kg',
-            activityLevel: document.getElementById('ActivityLevel').value || 'ModeratelyActive',
-            goal: document.getElementById('Goal').value || 'LoseFat',
+            weight: weightVal,
+            weightUnit: document.getElementById('WeightUnit')?.value || 'kg',
+            activityLevel: document.getElementById('ActivityLevel')?.value || 'ModeratelyActive',
+            goal: document.getElementById('Goal')?.value || 'LoseFat',
             maximizeMuscleRetention: document.getElementById('MaximizeMuscleRetention')?.checked ?? true,
             targetWeightLossKg: parseFloat(document.getElementById('TargetWeightLossKg')?.value) || null,
             timeframeWeeks: parseInt(document.getElementById('TimeframeWeeks')?.value, 10) || null,
-            country: document.getElementById('Country').value || 'Bangladesh',
-            cityRegion: document.getElementById('CityRegion').value || 'Dhaka',
-            monthlyBudget: parseFloat(document.getElementById('MonthlyBudget').value) || null,
-            currency: document.getElementById('Currency').value || 'BDT',
+            country: document.getElementById('Country')?.value || 'Bangladesh',
+            cityRegion: document.getElementById('CityRegion')?.value || 'Dhaka',
+            monthlyBudget: parseFloat(document.getElementById('MonthlyBudget')?.value) || null,
+            currency: document.getElementById('Currency')?.value || 'BDT',
             mealStructure: document.getElementById('MealStructure')?.value || 'Standard',
             officeLunch: document.getElementById('OfficeLunch')?.checked || false,
             officeLunchDescription: document.getElementById('OfficeLunchDescription')?.value || '',
             dietPreferences: Array.from(selectedDietTags),
-            customRestrictions: document.getElementById('CustomRestrictions').value || '',
-            exercisePreference: document.getElementById('ExercisePreference').value || 'Gym',
+            customRestrictions: document.getElementById('CustomRestrictions')?.value || '',
+            exercisePreference: document.getElementById('ExercisePreference')?.value || 'Gym',
             dailyStepsTarget: parseInt(document.getElementById('DailyStepsTarget')?.value, 10) || 10000,
-            daysPerWeek: parseInt(document.getElementById('DaysPerWeek').value, 10) || 4,
-            minutesPerSession: parseInt(document.getElementById('MinutesPerSession').value, 10) || 45,
-            experienceLevel: document.getElementById('ExperienceLevel').value || 'Beginner'
+            daysPerWeek: parseInt(document.getElementById('DaysPerWeek')?.value, 10) || 4,
+            minutesPerSession: parseInt(document.getElementById('MinutesPerSession')?.value, 10) || 45,
+            experienceLevel: document.getElementById('ExperienceLevel')?.value || 'Beginner'
         };
 
         try {
@@ -331,14 +428,16 @@ const Wizard = (() => {
             if (response.ok) {
                 setTimeout(() => {
                     window.location.href = '/Plan/Result';
-                }, 2200);
+                }, 1600);
             } else {
-                alert('An error occurred during calculation. Returning to review inputs.');
-                goToStep(4);
+                const errData = await response.json().catch(() => ({}));
+                console.error('Calculation server error:', errData);
+                alert(`Calculation notice: ${errData.message || 'Please review your inputs.'}`);
+                goToStep(2);
             }
         } catch (err) {
-            console.error('Generation failed:', err);
-            document.getElementById('planForm').submit();
+            console.error('Generation network failed:', err);
+            window.location.href = '/Plan/Result';
         }
     }
 
@@ -348,7 +447,8 @@ const Wizard = (() => {
             if (el) {
                 el.classList.remove('active');
                 el.classList.add('done');
-                el.querySelector('span:first-child').textContent = '✓';
+                const badge = el.querySelector('span:first-child');
+                if (badge) badge.textContent = '✓';
             }
         }, delayMs);
     }

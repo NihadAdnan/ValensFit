@@ -42,17 +42,10 @@ namespace ValensFit.Services.Nutrition
 
             if (isLightBreakfast)
             {
-                // Light Breakfast (e.g. 2 eggs + tea/fruit ~ 15-18% of calories)
+                // Light Breakfast (~18% calories)
                 breakfastPct = 0.18;
                 lunchPct = 0.41;
                 dinnerPct = 0.41;
-            }
-            else if (input.OfficeLunch)
-            {
-                // Portable outside lunch
-                lunchPct = 0.25;
-                breakfastPct = 0.375;
-                dinnerPct = 0.375;
             }
 
             // Food pool rotation history to avoid back-to-back repetitive choices
@@ -80,36 +73,60 @@ namespace ValensFit.Services.Nutrition
                     DayTheme = dayThemes[dayIdx]
                 };
 
-                // 1. Breakfast
-                double bTargetKcal = dailyTargetKcal * breakfastPct;
-                double bTargetProtein = dailyTargetProtein * breakfastPct;
-                var breakfast = isLightBreakfast 
-                    ? BuildLightBreakfast(input, bTargetKcal, bTargetProtein, dayIdx)
-                    : BuildMeal(input, "Breakfast", "Morning Breakfast", bTargetKcal, bTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, null);
-                dayPlan.Meals.Add(breakfast);
-
-                // 2. Lunch
-                double lTargetKcal = dailyTargetKcal * lunchPct;
-                double lTargetProtein = dailyTargetProtein * lunchPct;
-                string preferredLunchVeg = signatureVeggies[dayIdx % signatureVeggies.Length];
-                
-                string lunchTitle = input.OfficeLunch 
-                    ? (!string.IsNullOrWhiteSpace(input.OfficeLunchDescription) ? $"Outside Lunch ({input.OfficeLunchDescription})" : "Office / Outside Lunch")
-                    : "Midday Meal";
-
-                var lunch = BuildMeal(input, "Lunch", lunchTitle, lTargetKcal, lTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, preferredLunchVeg);
+                // Check if user has custom outside lunch
                 if (input.OfficeLunch && !string.IsNullOrWhiteSpace(input.OfficeLunchDescription))
                 {
-                    lunch.CookingTip = $"Accounted for your customary outside lunch: {input.OfficeLunchDescription}. Remaining daily macros balanced across breakfast and dinner.";
-                }
-                dayPlan.Meals.Add(lunch);
+                    // 1. Build estimated custom outside lunch first
+                    var customLunch = BuildCustomOutsideLunch(input.OfficeLunchDescription, dailyTargetKcal, dailyTargetProtein, dayIdx);
+                    
+                    // 2. Compute remaining budget for Breakfast and Dinner
+                    double remainingKcal = Math.Max(dailyTargetKcal - customLunch.ActualCalories, 600.0);
+                    double remainingProtein = Math.Max(dailyTargetProtein - customLunch.ActualProtein, 30.0);
 
-                // 3. Dinner
-                double dTargetKcal = dailyTargetKcal * dinnerPct;
-                double dTargetProtein = dailyTargetProtein * dinnerPct;
-                string preferredDinnerVeg = signatureVeggies[(dayIdx + 3) % signatureVeggies.Length];
-                var dinner = BuildMeal(input, "Dinner", "Evening Dinner", dTargetKcal, dTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, preferredDinnerVeg);
-                dayPlan.Meals.Add(dinner);
+                    double bRatio = isLightBreakfast ? 0.30 : 0.48;
+                    double dRatio = 1.0 - bRatio;
+
+                    double bTargetKcal = remainingKcal * bRatio;
+                    double bTargetProtein = remainingProtein * bRatio;
+                    double dTargetKcal = remainingKcal * dRatio;
+                    double dTargetProtein = remainingProtein * dRatio;
+
+                    var breakfast = isLightBreakfast
+                        ? BuildLightBreakfast(input, bTargetKcal, bTargetProtein, dayIdx)
+                        : BuildMeal(input, "Breakfast", "Morning Breakfast", bTargetKcal, bTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, null);
+
+                    string preferredDinnerVeg = signatureVeggies[(dayIdx + 2) % signatureVeggies.Length];
+                    var dinner = BuildMeal(input, "Dinner", "Evening Dinner", dTargetKcal, dTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, preferredDinnerVeg);
+
+                    dayPlan.Meals.Add(breakfast);
+                    dayPlan.Meals.Add(customLunch);
+                    dayPlan.Meals.Add(dinner);
+                }
+                else
+                {
+                    // Standard 3-Meal Generation
+                    // 1. Breakfast
+                    double bTargetKcal = dailyTargetKcal * breakfastPct;
+                    double bTargetProtein = dailyTargetProtein * breakfastPct;
+                    var breakfast = isLightBreakfast 
+                        ? BuildLightBreakfast(input, bTargetKcal, bTargetProtein, dayIdx)
+                        : BuildMeal(input, "Breakfast", "Morning Breakfast", bTargetKcal, bTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, null);
+                    dayPlan.Meals.Add(breakfast);
+
+                    // 2. Lunch
+                    double lTargetKcal = dailyTargetKcal * lunchPct;
+                    double lTargetProtein = dailyTargetProtein * lunchPct;
+                    string preferredLunchVeg = signatureVeggies[dayIdx % signatureVeggies.Length];
+                    var lunch = BuildMeal(input, "Lunch", "Midday Meal", lTargetKcal, lTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, preferredLunchVeg);
+                    dayPlan.Meals.Add(lunch);
+
+                    // 3. Dinner
+                    double dTargetKcal = dailyTargetKcal * dinnerPct;
+                    double dTargetProtein = dailyTargetProtein * dinnerPct;
+                    string preferredDinnerVeg = signatureVeggies[(dayIdx + 3) % signatureVeggies.Length];
+                    var dinner = BuildMeal(input, "Dinner", "Evening Dinner", dTargetKcal, dTargetProtein, dayIdx, usedProteinHistory, usedVegHistory, preferredDinnerVeg);
+                    dayPlan.Meals.Add(dinner);
+                }
 
                 // Calculate Day Totals
                 dayPlan.TotalCalories = Math.Round(dayPlan.Meals.Sum(m => m.ActualCalories), 0);
@@ -117,21 +134,84 @@ namespace ValensFit.Services.Nutrition
                 dayPlan.TotalCarbs = Math.Round(dayPlan.Meals.Sum(m => m.ActualCarbs), 1);
                 dayPlan.TotalFat = Math.Round(dayPlan.Meals.Sum(m => m.ActualFat), 1);
 
-                // Day-level validation & convergence check:
+                // Convergence check
                 double dayKcalDiff = dailyTargetKcal - dayPlan.TotalCalories;
-                if (Math.Abs(dayKcalDiff) > (dailyTargetKcal * 0.03))
+                if (Math.Abs(dayKcalDiff) > (dailyTargetKcal * 0.04))
                 {
-                    AdjustMealToFit(dinner, dayKcalDiff);
-                    dayPlan.TotalCalories = Math.Round(dayPlan.Meals.Sum(m => m.ActualCalories), 0);
-                    dayPlan.TotalProtein = Math.Round(dayPlan.Meals.Sum(m => m.ActualProtein), 1);
-                    dayPlan.TotalCarbs = Math.Round(dayPlan.Meals.Sum(m => m.ActualCarbs), 1);
-                    dayPlan.TotalFat = Math.Round(dayPlan.Meals.Sum(m => m.ActualFat), 1);
+                    var dinner = dayPlan.Meals.FirstOrDefault(m => m.SlotName == "Dinner");
+                    if (dinner != null)
+                    {
+                        AdjustMealToFit(dinner, dayKcalDiff);
+                        dayPlan.TotalCalories = Math.Round(dayPlan.Meals.Sum(m => m.ActualCalories), 0);
+                        dayPlan.TotalProtein = Math.Round(dayPlan.Meals.Sum(m => m.ActualProtein), 1);
+                        dayPlan.TotalCarbs = Math.Round(dayPlan.Meals.Sum(m => m.ActualCarbs), 1);
+                        dayPlan.TotalFat = Math.Round(dayPlan.Meals.Sum(m => m.ActualFat), 1);
+                    }
                 }
 
                 days.Add(dayPlan);
             }
 
             return days;
+        }
+
+        private MealPlanModel BuildCustomOutsideLunch(string description, double dailyTargetKcal, double dailyTargetProtein, int dayIdx)
+        {
+            var meal = new MealPlanModel
+            {
+                SlotName = "Lunch",
+                Title = $"Outside Lunch ({description.Trim()})",
+                TimingGuidance = "1:00 PM - 2:30 PM (Office / Custom Lunch)"
+            };
+
+            string descLower = description.ToLowerInvariant();
+            
+            // Heuristic estimation based on user's open text
+            double estKcal = Math.Clamp(dailyTargetKcal * 0.35, 400.0, 750.0);
+            double estProtein = Math.Clamp(dailyTargetProtein * 0.30, 20.0, 45.0);
+            double estCarbs = (estKcal * 0.45) / 4.0;
+            double estFat = (estKcal * 0.25) / 9.0;
+
+            if (descLower.Contains("biryani") || descLower.Contains("khichuri") || descLower.Contains("fried rice"))
+            {
+                estKcal = Math.Clamp(dailyTargetKcal * 0.38, 550.0, 800.0);
+                estCarbs = (estKcal * 0.50) / 4.0;
+                estFat = (estKcal * 0.28) / 9.0;
+            }
+            else if (descLower.Contains("salad") || descLower.Contains("soup"))
+            {
+                estKcal = Math.Clamp(dailyTargetKcal * 0.25, 300.0, 500.0);
+                estCarbs = (estKcal * 0.30) / 4.0;
+            }
+            else if (descLower.Contains("chicken") || descLower.Contains("beef") || descLower.Contains("fish") || descLower.Contains("egg"))
+            {
+                estProtein = Math.Clamp(dailyTargetProtein * 0.35, 28.0, 50.0);
+            }
+
+            meal.TargetCalories = Math.Round(estKcal, 0);
+            meal.TargetProtein = Math.Round(estProtein, 1);
+            meal.ActualCalories = meal.TargetCalories;
+            meal.ActualProtein = meal.TargetProtein;
+            meal.ActualCarbs = Math.Round(estCarbs, 1);
+            meal.ActualFat = Math.Round(estFat, 1);
+
+            meal.Items.Add(new MealFoodItem
+            {
+                FoodId = "custom_outside_lunch",
+                FoodName = $"Custom Outside Meal: {description.Trim()}",
+                Category = "Protein",
+                Grams = 350.0,
+                DisplayQuantity = "1 Standard Serving (~350g)",
+                Calories = meal.ActualCalories,
+                Protein = meal.ActualProtein,
+                Carbs = meal.ActualCarbs,
+                Fat = meal.ActualFat,
+                PrepNotes = "Custom outside meal accounted for. Remaining daily calories balanced in breakfast & dinner."
+            });
+
+            meal.CookingTip = $"Accounted for your customary outside meal ({description.Trim()}). Keep gravy/oil moderate to remain strictly within daily caloric budget.";
+
+            return meal;
         }
 
         private MealPlanModel BuildLightBreakfast(UserInputModel input, double targetKcal, double targetProtein, int dayIdx)

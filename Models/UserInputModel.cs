@@ -1,18 +1,11 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace ValensFit.Models
 {
     public class UserInputModel
     {
-        [Required(ErrorMessage = "Please enter your first name.")]
-        [StringLength(30, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 30 characters.")]
-        [RegularExpression(@"^[a-zA-Z\s\-']+$", ErrorMessage = "Name must contain letters only.")]
-        public string FirstName { get; set; } = string.Empty;
+        public string FirstName { get; set; } = "Friend";
 
-        [Required]
         public string Gender { get; set; } = "Male"; // Male, Female
 
-        [Range(13, 80, ErrorMessage = "Age must be between 13 and 80.")]
         public int Age { get; set; } = 25;
 
         public double Height { get; set; } = 175; // in cm or ft
@@ -49,7 +42,7 @@ namespace ValensFit.Models
         // "Standard" (30/35/35), "LightBreakfast" (e.g. 2 eggs + tea, 18/41/41), "TwoMeals" (Lunch + Dinner)
 
         public bool OfficeLunch { get; set; } = false;
-        public string? OfficeLunchDescription { get; set; } // What user actually eats outside (e.g. "Rice + Chicken curry, 1 piece")
+        public string? OfficeLunchDescription { get; set; } // Open text field: user can describe anything they eat outside
 
         // Exercise Preferences
         public string ExercisePreference { get; set; } = "Gym"; 
@@ -59,32 +52,38 @@ namespace ValensFit.Models
 
         public string HomeEquipment { get; set; } = "None"; // "None", "PullUpBar", "Bands", "Dumbbells"
 
-        [Range(15, 120)]
         public int MinutesPerSession { get; set; } = 45;
 
-        [Range(0, 7)]
         public int DaysPerWeek { get; set; } = 4;
 
         public string ExperienceLevel { get; set; } = "Beginner"; // Beginner, Intermediate, Advanced
 
-        // Helper calculations
+        // Helper calculations with sanitization
         public double GetHeightInCm()
         {
             if (HeightUnit.Equals("ft", StringComparison.OrdinalIgnoreCase))
             {
                 double totalInches = (Height * 12.0) + HeightInches;
-                return Math.Round(totalInches * 2.54, 1);
+                double cm = totalInches * 2.54;
+                return Math.Clamp(Math.Round(cm, 1), 100.0, 250.0);
             }
-            return Math.Round(Height, 1);
+            return Math.Clamp(Math.Round(Height, 1), 100.0, 250.0);
         }
 
         public double GetWeightInKg()
         {
             if (WeightUnit.Equals("lb", StringComparison.OrdinalIgnoreCase) || WeightUnit.Equals("lbs", StringComparison.OrdinalIgnoreCase))
             {
-                return Math.Round(Weight * 0.45359237, 1);
+                double kg = Weight * 0.45359237;
+                return Math.Clamp(Math.Round(kg, 1), 25.0, 300.0);
             }
-            return Math.Round(Weight, 1);
+            return Math.Clamp(Math.Round(Weight, 1), 25.0, 300.0);
+        }
+
+        public string GetSanitizedName()
+        {
+            if (string.IsNullOrWhiteSpace(FirstName)) return "Friend";
+            return FirstName.Trim();
         }
     }
 }

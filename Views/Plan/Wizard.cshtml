@@ -15,36 +15,36 @@
         <div class="step-node" data-step="4" title="Training">4</div>
     </div>
 
-    <!-- Hidden Form Elements for Submission -->
-    <form id="planForm" method="post" action="/Plan/Generate">
+    <!-- Main Wizard Form -->
+    <form id="planForm" method="post" action="/Plan/Generate" onsubmit="return false;">
         
         <!-- =================================================================
              STEP 0: INTRO & SAMPLE PROFILES
              ================================================================= -->
         <div class="wizard-step active" id="step0">
             <div style="text-align: center; padding: 1rem 0;">
-                <h1 style="font-size: 2.3rem; margin: 0.5rem 0; line-height: 1.25;">
+                <h1 style="font-size: 2.2rem; margin: 0.5rem 0; line-height: 1.25;">
                     Personalized Diet & Training Plan Generator
                 </h1>
                 
-                <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 620px; margin: 0 auto 1.5rem auto;">
+                <p style="font-size: 1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 1.5rem auto;">
                     Generate a deterministic 7-day meal schedule tailored to your goals, localized grocery budget estimates, and a structured workout routine.
                 </p>
 
-                <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: center; margin-bottom: 1.75rem;">
                     <button type="button" class="btn-primary" onclick="Wizard.goToStep(1)" style="font-size: 1rem; padding: 0.9rem 2.25rem;">
                         <span>Get Started</span>
                         <span>➔</span>
                     </button>
                 </div>
 
-                <div class="section-divider" style="max-width: 500px; margin: 1.5rem auto 1rem;">
+                <div class="section-divider" style="max-width: 480px; margin: 1.5rem auto 0.75rem;">
                     <div class="line"></div>
                     <div class="icon">Quick Load Example Profiles</div>
                     <div class="line"></div>
                 </div>
 
-                <!-- Subtle Sample Profile Chips (No Ad/Course Vibe) -->
+                <!-- Subtle Sample Profile Chips -->
                 <div class="sample-presets-bar" style="justify-content: center;">
                     <div class="sample-chip" onclick="Wizard.loadPreset('student_cut')">
                         📍 Dhaka Student Budget (BDT 7,000 / 4-Day Gym)
@@ -69,15 +69,16 @@
                 <div class="line"></div>
             </div>
 
-            <h2 style="font-size: 1.6rem; text-align: center; margin-bottom: 0.4rem;">What is your first name?</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
-                Used solely to address your plan report.
+            <h2 style="font-size: 1.5rem; text-align: center; margin-bottom: 0.4rem;">What is your first name?</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.75rem;">
+                Please provide your name to personalize your generated plan.
             </p>
 
-            <div style="max-width: 440px; margin: 0 auto;">
+            <div style="max-width: 420px; margin: 0 auto;">
                 <div class="form-group">
-                    <label class="form-label" for="FirstName">First Name</label>
-                    <input type="text" id="FirstName" name="FirstName" class="form-input" value="" placeholder="e.g. Rafi" required />
+                    <label class="form-label" for="FirstName">First Name *</label>
+                    <input type="text" id="FirstName" name="FirstName" class="form-input" value="" placeholder="e.g. Rafi" required autocomplete="off" />
+                    <div class="validation-msg" id="valMsg_FirstName">Please enter your first name to continue.</div>
                 </div>
             </div>
 
@@ -102,22 +103,22 @@
                 <div class="line"></div>
             </div>
 
-            <h2 style="font-size: 1.6rem; text-align: center; margin-bottom: 0.4rem;">Biometric & Goal Assessment</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
-                Calculates your Basal Metabolic Rate (BMR) and daily energy expenditure.
+            <h2 style="font-size: 1.5rem; text-align: center; margin-bottom: 0.4rem;">Biometric & Goal Assessment</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.75rem;">
+                All biometric fields are required to calculate your accurate energy expenditure.
             </p>
 
             <!-- Biological Sex (Male / Female only) -->
-            <label class="form-label">Biological Sex</label>
+            <label class="form-label">Biological Sex *</label>
             <input type="hidden" id="Gender" name="Gender" value="@Model.Gender" />
-            <div class="card-selector-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 1.75rem;">
+            <div class="card-selector-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 1.5rem;">
                 <div class="select-card @(Model.Gender == "Male" ? "selected" : "")" onclick="Wizard.setGender('Male', this)">
                     <div class="select-card-title">Male</div>
-                    <div class="select-card-desc">BMR Formula: 10w + 6.25h - 5a + 5</div>
+                    <div class="select-card-desc">BMR: 10w + 6.25h - 5a + 5</div>
                 </div>
                 <div class="select-card @(Model.Gender == "Female" ? "selected" : "")" onclick="Wizard.setGender('Female', this)">
                     <div class="select-card-title">Female</div>
-                    <div class="select-card-desc">BMR Formula: 10w + 6.25h - 5a - 161</div>
+                    <div class="select-card-desc">BMR: 10w + 6.25h - 5a - 161</div>
                 </div>
             </div>
 
@@ -126,10 +127,11 @@
                 <!-- Age Column -->
                 <div class="form-group">
                     <div class="input-header-row">
-                        <label class="form-label" for="Age" style="margin-bottom: 0;">Age (Years)</label>
+                        <label class="form-label" for="Age" style="margin-bottom: 0;">Age (Years) *</label>
                     </div>
                     <input type="number" id="Age" name="Age" class="form-input" min="13" max="80" value="@Model.Age" required />
-                    <small id="ageDisclaimer" style="color: var(--accent-amber); font-size: 0.75rem; display: none; margin-top: 0.3rem;">
+                    <div class="validation-msg" id="valMsg_Age">Age must be between 13 and 80.</div>
+                    <small id="ageDisclaimer" style="color: var(--accent-amber); font-size: 0.72rem; display: none; margin-top: 0.25rem;">
                         Under-18: Conservative deficit safeguards applied.
                     </small>
                 </div>
@@ -137,7 +139,7 @@
                 <!-- Height Column -->
                 <div class="form-group">
                     <div class="input-header-row">
-                        <label class="form-label" style="margin-bottom: 0;">Height</label>
+                        <label class="form-label" style="margin-bottom: 0;">Height *</label>
                         <div class="unit-toggle-group">
                             <button type="button" class="unit-toggle-btn active" id="btnHeightCm" onclick="Wizard.setHeightUnit('cm')">cm</button>
                             <button type="button" class="unit-toggle-btn" id="btnHeightFt" onclick="Wizard.setHeightUnit('ft')">ft/in</button>
@@ -145,30 +147,32 @@
                     </div>
                     <input type="hidden" id="HeightUnit" name="HeightUnit" value="cm" />
                     <div id="heightCmGroup">
-                        <input type="number" id="Height" name="Height" class="form-input" min="120" max="230" step="0.5" value="@Model.Height" />
+                        <input type="number" id="Height" name="Height" class="form-input" min="100" max="250" step="0.5" value="@Model.Height" />
                     </div>
                     <div id="heightFtGroup" style="display: none; gap: 0.5rem;">
-                        <input type="number" id="HeightFt" class="form-input" placeholder="Feet" min="4" max="7" value="5" />
-                        <input type="number" id="HeightInches" name="HeightInches" class="form-input" placeholder="Inches" min="0" max="11" value="9" />
+                        <input type="number" id="HeightFt" class="form-input" placeholder="Ft" min="3" max="8" value="5" />
+                        <input type="number" id="HeightInches" name="HeightInches" class="form-input" placeholder="In" min="0" max="11" value="9" />
                     </div>
+                    <div class="validation-msg" id="valMsg_Height">Please provide a valid height.</div>
                 </div>
 
                 <!-- Weight Column -->
                 <div class="form-group">
                     <div class="input-header-row">
-                        <label class="form-label" style="margin-bottom: 0;">Weight</label>
+                        <label class="form-label" style="margin-bottom: 0;">Weight *</label>
                         <div class="unit-toggle-group">
                             <button type="button" class="unit-toggle-btn active" id="btnWeightKg" onclick="Wizard.setWeightUnit('kg')">kg</button>
                             <button type="button" class="unit-toggle-btn" id="btnWeightLb" onclick="Wizard.setWeightUnit('lb')">lbs</button>
                         </div>
                     </div>
                     <input type="hidden" id="WeightUnit" name="WeightUnit" value="kg" />
-                    <input type="number" id="Weight" name="Weight" class="form-input" min="30" max="250" step="0.5" value="@Model.Weight" />
+                    <input type="number" id="Weight" name="Weight" class="form-input" min="25" max="300" step="0.5" value="@Model.Weight" />
+                    <div class="validation-msg" id="valMsg_Weight">Please provide a valid weight.</div>
                 </div>
             </div>
 
             <!-- Activity Level Cards -->
-            <label class="form-label" style="margin-top: 0.5rem;">Daily Lifestyle & Activity</label>
+            <label class="form-label" style="margin-top: 0.4rem;">Daily Activity Level *</label>
             <input type="hidden" id="ActivityLevel" name="ActivityLevel" value="@Model.ActivityLevel" />
             <div class="card-selector-grid">
                 <div class="select-card @(Model.ActivityLevel == "Sedentary" ? "selected" : "")" onclick="Wizard.setActivity('Sedentary', this)">
@@ -190,9 +194,9 @@
             </div>
 
             <!-- Primary Goal Cards -->
-            <label class="form-label" style="margin-top: 1rem;">Primary Fitness Goal</label>
+            <label class="form-label" style="margin-top: 0.85rem;">Primary Fitness Goal *</label>
             <input type="hidden" id="Goal" name="Goal" value="@Model.Goal" />
-            <div class="card-selector-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="card-selector-grid">
                 <div class="select-card @(Model.Goal == "LoseFat" ? "selected" : "")" onclick="Wizard.setGoal('LoseFat', this)">
                     <div class="select-card-title">Lose Body Fat</div>
                     <div class="select-card-desc">Caloric deficit with high protein to protect lean mass.</div>
@@ -208,26 +212,26 @@
             </div>
 
             <!-- Muscle Retention Preference -->
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem 1.15rem; margin-top: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.85rem 1.1rem; margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <div style="font-weight: 700; font-size: 0.92rem; color: var(--text-primary);">Protect Muscle Mass (High Protein Focus)</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);">Allocates 2.2 g/kg protein to prevent muscle loss while losing weight or building lean tissue.</div>
+                    <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">Protect Muscle Mass (High Protein: 2.2 g/kg)</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">Prioritizes protein to prevent muscle loss while losing weight or building lean tissue.</div>
                 </div>
                 <input type="checkbox" id="MaximizeMuscleRetention" name="MaximizeMuscleRetention" value="true" checked style="width: 18px; height: 18px; accent-color: var(--accent-primary);" />
             </div>
 
             <!-- Optional Pace Sanity Check Fields (Shown for LoseFat) -->
-            <div id="fatLossPaceSection" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-top: 1rem;">
-                <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-secondary); margin-bottom: 0.5rem; text-transform: uppercase;">
+            <div id="fatLossPaceSection" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem 1.15rem; margin-top: 1rem;">
+                <div style="font-size: 0.78rem; font-weight: 700; color: var(--accent-secondary); margin-bottom: 0.45rem; text-transform: uppercase;">
                     Target Pace Validation (Optional)
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
                     <div>
-                        <label class="form-label" style="font-size: 0.75rem;">Target Weight Loss (kg)</label>
+                        <label class="form-label" style="font-size: 0.72rem;">Target Weight Loss (kg)</label>
                         <input type="number" id="TargetWeightLossKg" name="TargetWeightLossKg" class="form-input" placeholder="e.g. 5" min="1" max="50" step="0.5" value="@Model.TargetWeightLossKg" />
                     </div>
                     <div>
-                        <label class="form-label" style="font-size: 0.75rem;">Timeframe (Weeks)</label>
+                        <label class="form-label" style="font-size: 0.72rem;">Timeframe (Weeks)</label>
                         <input type="number" id="TimeframeWeeks" name="TimeframeWeeks" class="form-input" placeholder="e.g. 8" min="2" max="52" value="@Model.TimeframeWeeks" />
                     </div>
                 </div>
@@ -254,14 +258,14 @@
                 <div class="line"></div>
             </div>
 
-            <h2 style="font-size: 1.6rem; text-align: center; margin-bottom: 0.4rem;">Location, Budget & Diet Structure</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.5rem; text-align: center; margin-bottom: 0.4rem;">Location, Budget & Diet Structure</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.75rem;">
                 Grounds your food recommendations and grocery costs to local market staples.
             </p>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                 <div class="form-group">
-                    <label class="form-label" for="Country">Country</label>
+                    <label class="form-label" for="Country">Country *</label>
                     <select id="Country" name="Country" class="form-select" onchange="Wizard.onCountryChange(this.value)">
                         <option value="Bangladesh" selected>Bangladesh</option>
                         <option value="United States">United States</option>
@@ -281,47 +285,47 @@
                 <div class="form-group">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
                         <label class="form-label" style="margin-bottom: 0;">Monthly Grocery Budget</label>
-                        <span id="currencyLabel" style="color: var(--accent-primary); font-weight: 700; font-size: 0.8rem;">BDT (৳)</span>
+                        <span id="currencyLabel" style="color: var(--accent-primary); font-weight: 700; font-size: 0.78rem;">BDT (৳)</span>
                     </div>
                     <input type="hidden" id="Currency" name="Currency" value="@Model.Currency" />
                     <input type="number" id="MonthlyBudget" name="MonthlyBudget" class="form-input" value="@Model.MonthlyBudget" placeholder="e.g. 7000" min="0" />
                 </div>
             </div>
 
-            <!-- Breakfast & Meal Structure Preference -->
-            <div class="form-group" style="margin-top: 0.5rem;">
+            <!-- Breakfast Sizing Preference -->
+            <div class="form-group" style="margin-top: 0.4rem;">
                 <label class="form-label">Breakfast Sizing Preference</label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                    <div class="select-card @(Model.MealStructure == "Standard" ? "selected" : "")" id="structStandard" onclick="Wizard.setMealStructure('Standard', this)" style="padding: 1rem; text-align: left;">
-                        <div class="select-card-title" style="font-size: 0.92rem;">Standard Breakfast (Balanced)</div>
+                    <div class="select-card @(Model.MealStructure == "Standard" ? "selected" : "")" id="structStandard" onclick="Wizard.setMealStructure('Standard', this)" style="padding: 0.9rem; text-align: left; align-items: flex-start;">
+                        <div class="select-card-title" style="font-size: 0.9rem;">Standard Breakfast (Balanced)</div>
                         <div class="select-card-desc">Even 3-meal split (~30% breakfast, 35% lunch, 35% dinner).</div>
                     </div>
-                    <div class="select-card @(Model.MealStructure == "LightBreakfast" ? "selected" : "")" id="structLight" onclick="Wizard.setMealStructure('LightBreakfast', this)" style="padding: 1rem; text-align: left;">
-                        <div class="select-card-title" style="font-size: 0.92rem;">Light Breakfast (e.g. 2 Eggs)</div>
+                    <div class="select-card @(Model.MealStructure == "LightBreakfast" ? "selected" : "")" id="structLight" onclick="Wizard.setMealStructure('LightBreakfast', this)" style="padding: 0.9rem; text-align: left; align-items: flex-start;">
+                        <div class="select-card-title" style="font-size: 0.9rem;">Light Breakfast (e.g. 2 Eggs)</div>
                         <div class="select-card-desc">Light morning meal; remaining calories moved to fuller lunch and dinner.</div>
                     </div>
                 </div>
                 <input type="hidden" id="MealStructure" name="MealStructure" value="@Model.MealStructure" />
             </div>
 
-            <!-- Office / Outside Lunch Mode with Specific Input -->
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.15rem; margin-bottom: 1.25rem;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <!-- Office / Outside Lunch Mode with Specific Open Input -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.15rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem;">
                     <div>
-                        <div style="font-weight: 700; font-size: 0.92rem; color: var(--text-primary);">Office / Outside Lunch Mode</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Enable if you usually eat lunch at an office cafeteria or outside.</div>
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">Office / Outside Lunch Mode</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Enable if you eat lunch at an office cafeteria or outside.</div>
                     </div>
                     <input type="checkbox" id="OfficeLunch" name="OfficeLunch" value="true" onchange="Wizard.toggleOfficeLunch(this.checked)" style="width: 18px; height: 18px; accent-color: var(--accent-primary);" />
                 </div>
                 
-                <div id="officeLunchDetail" style="display: none; margin-top: 0.75rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <div id="officeLunchDetail" style="display: none; margin-top: 0.65rem; border-top: 1px solid var(--border-subtle); padding-top: 0.65rem;">
                     <label class="form-label" for="OfficeLunchDescription" style="font-size: 0.75rem;">What do you usually eat for outside lunch?</label>
                     <input type="text" id="OfficeLunchDescription" name="OfficeLunchDescription" class="form-input" placeholder="e.g. Steamed rice with chicken curry (1 piece), or Roti with dal" value="@Model.OfficeLunchDescription" />
                 </div>
             </div>
 
             <!-- Dietary Guidelines & Restriction Tags -->
-            <label class="form-label">Dietary Preferences & Guidelines</label>
+            <label class="form-label">Dietary Guidelines & Preferences</label>
             <div class="tags-cloud" id="dietTagsCloud">
                 <div class="diet-tag active" data-tag="Halal" onclick="Wizard.toggleDietTag(this, 'Halal')">Halal</div>
                 <div class="diet-tag active" data-tag="Egg + Chicken Only" onclick="Wizard.toggleDietTag(this, 'Egg + Chicken Only')">Egg + Chicken Only</div>
@@ -336,7 +340,7 @@
             </div>
 
             <!-- Free text exclusions -->
-            <div class="form-group" style="margin-top: 1rem;">
+            <div class="form-group" style="margin-top: 0.85rem;">
                 <label class="form-label" for="CustomRestrictions">Custom Food Exclusions or Allergies</label>
                 <input type="text" id="CustomRestrictions" name="CustomRestrictions" class="form-input" placeholder="e.g. shrimp, peanuts, mushrooms" value="@Model.CustomRestrictions" />
             </div>
@@ -362,13 +366,13 @@
                 <div class="line"></div>
             </div>
 
-            <h2 style="font-size: 1.6rem; text-align: center; margin-bottom: 0.4rem;">Physical Training Structure</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.5rem; text-align: center; margin-bottom: 0.4rem;">Physical Training Structure</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.75rem;">
                 Choose your workout environment and schedule.
             </p>
 
             <!-- Exercise Preference Cards -->
-            <label class="form-label">Training Modality</label>
+            <label class="form-label">Training Modality *</label>
             <input type="hidden" id="ExercisePreference" name="ExercisePreference" value="@Model.ExercisePreference" />
             <div class="card-selector-grid">
                 <div class="select-card @(Model.ExercisePreference == "Gym" ? "selected" : "")" onclick="Wizard.setExercise('Gym', this)">
@@ -389,8 +393,8 @@
                 </div>
             </div>
 
-            <!-- Conditional Steps Target Section (for Walking / General) -->
-            <div id="walkingStepsSection" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.15rem; margin-top: 1.25rem;">
+            <!-- Conditional Steps Target Section -->
+            <div id="walkingStepsSection" style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1rem; margin-top: 1rem;">
                 <label class="form-label" for="DailyStepsTarget">Target Daily Steps Goal</label>
                 <select id="DailyStepsTarget" name="DailyStepsTarget" class="form-select">
                     <option value="6000">6,000 Steps / Day (Moderate Baseline)</option>
@@ -402,7 +406,7 @@
             </div>
 
             <!-- Schedule & Session duration -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1.25rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
                 <div class="form-group">
                     <label class="form-label" for="DaysPerWeek">Training Days Per Week</label>
                     <select id="DaysPerWeek" name="DaysPerWeek" class="form-select">
@@ -449,11 +453,11 @@
         <div class="wizard-step" id="step5" style="display: none;">
             <div class="spinner-container">
                 <div class="clean-spinner"></div>
-                <h2 style="font-size: 1.75rem; margin-bottom: 0.4rem;">
+                <h2 style="font-size: 1.65rem; margin-bottom: 0.4rem;">
                     Generating Your Plan
                 </h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 480px;">
-                    Executing deterministic calculations, regional food selection, and localized budget grounding...
+                <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 460px;">
+                    Executing deterministic sports science calculations, regional food selection, and localized budget grounding...
                 </p>
 
                 <ul class="gen-steps-list">
@@ -475,7 +479,7 @@
                     </li>
                     <li class="gen-step-item" id="genStep5">
                         <span>•</span>
-                        <span>Finalizing Training Regiment</span>
+                        <span>Finalizing Training Routine</span>
                     </li>
                 </ul>
             </div>
