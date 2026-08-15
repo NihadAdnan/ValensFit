@@ -33,10 +33,10 @@
             </div>
         </a>
 
-        <!-- Top Right Theme Switcher -->
+        <!-- Top Right Theme Switcher: Dark mode shows Sun (☀️), Light mode shows Moon (🌙) -->
         <div class="nav-actions">
-            <button type="button" id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
-                <span id="themeIcon">🌙</span>
+            <button type="button" id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme" aria-label="Switch Theme">
+                <span id="themeIcon">☀️</span>
             </button>
         </div>
     </header>
@@ -61,7 +61,8 @@
         function updateThemeIcon(theme) {
             var iconEl = document.getElementById('themeIcon');
             if (iconEl) {
-                iconEl.textContent = (theme === 'light') ? '☀️' : '🌙';
+                // In Dark mode show Sun (☀️) to switch to light, in Light mode show Moon (🌙) to switch to dark
+                iconEl.textContent = (theme === 'dark') ? '☀️' : '🌙';
             }
         }
 
