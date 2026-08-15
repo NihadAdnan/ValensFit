@@ -3,7 +3,19 @@ using ValensFit.Services.Exercise;
 using ValensFit.Services.Grocery;
 using ValensFit.Services.Nutrition;
 
+// Prevent Linux inotify limit crashes in container/cloud environments (Render, Railway, Fly.io, Azure, Docker)
+Environment.SetEnvironmentVariable("DOTNET_USE_POLLING_FILE_WATCHER", "true");
+Environment.SetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER", "true");
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure configuration sources with reloadOnChange=false to prevent inotify instance exhaustion in Linux containers
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables();
 
 // Add services to the container.
 var mvcBuilder = builder.Services.AddControllersWithViews()

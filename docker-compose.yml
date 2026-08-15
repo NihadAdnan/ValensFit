@@ -9,6 +9,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - DOTNET_RUNNING_IN_CONTAINER=true
       - Ollama__DockerEndpoint=http://ollama:11434
       - Ollama__Endpoint=http://ollama:11434
       - Ollama__Model=llama3.2:1b
