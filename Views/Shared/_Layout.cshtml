@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,19 +13,32 @@
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="~/css/roman-theme.css" asp-append-version="true" />
+
+    <!-- Instant Theme Initializer (Prevents Theme Flash) -->
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('valensfit_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
 </head>
 <body>
     <!-- Navigation Bar -->
     <header class="app-nav">
         <a href="/" class="brand-logo">
-            <div class="brand-monogram">
-                V
-            </div>
+            <div class="brand-monogram">V</div>
             <div>
                 <div class="brand-title">Valens<span class="brand-accent-text">Fit</span></div>
                 <div class="brand-tagline-nav">Nutrition & Training Architecture</div>
             </div>
         </a>
+
+        <!-- Top Right Theme Switcher -->
+        <div class="nav-actions">
+            <button type="button" id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark / Light Theme" aria-label="Toggle Theme">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
     </header>
 
     <!-- Main Container -->
@@ -33,15 +46,38 @@
         @RenderBody()
     </main>
 
-    <!-- Footer -->
-    <footer class="no-print" style="text-align: center; padding: 2rem 1rem; border-top: 1px solid var(--border-subtle); color: var(--text-muted); font-size: 0.8rem;">
-        <p style="margin-bottom: 0.35rem;">
+    <!-- Sticky Footer (Anchors to Bottom of Widescreen) -->
+    <footer class="app-footer no-print">
+        <p style="margin-bottom: 0.25rem;">
             ValensFit · Formulated with Mifflin-St Jeor Sports Nutrition Formulas.
         </p>
-        <p style="color: var(--text-muted); font-size: 0.75rem;">
+        <p style="color: var(--text-muted); font-size: 0.74rem;">
             General wellness tool. Not medical advice. Consult a healthcare professional for personalized medical or clinical dietary needs.
         </p>
     </footer>
+
+    <!-- Global Theme Toggle Script -->
+    <script>
+        function updateThemeIcon(theme) {
+            var iconEl = document.getElementById('themeIcon');
+            if (iconEl) {
+                iconEl.textContent = (theme === 'light') ? '☀️' : '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            var currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            var newTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('valensfit_theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var theme = document.documentElement.getAttribute('data-theme') || 'dark';
+            updateThemeIcon(theme);
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

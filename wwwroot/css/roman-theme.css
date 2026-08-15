@@ -1,10 +1,11 @@
 /* ==========================================================================
    VALENSFIT — CLEAN ATHLETIC DESIGN SYSTEM
-   Deep Slate, Obsidian, Emerald & Tech Cyan Accents
-   Fully Responsive for iOS, Android, Tablets & Desktops
+   Dark Theme (Default) & Crisp Light Theme Support
+   Sticky Full-Height Viewport Layout (Zero Big Gaps on Widescreens)
    ========================================================================== */
 
 :root {
+  /* DARK THEME TOKENS (Default) */
   --bg-primary: #0C0E14;
   --bg-surface: #141721;
   --bg-surface-elevated: #1B1F2D;
@@ -30,6 +31,7 @@
 
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-medium: rgba(255, 255, 255, 0.16);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   
   --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -43,7 +45,38 @@
   --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Base & Reset */
+/* ==========================================================================
+   LIGHT THEME OVERRIDES
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-primary: #F3F4F6;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F9FAFB;
+  --bg-surface-glass: rgba(255, 255, 255, 0.92);
+  --bg-card: #F9FAFB;
+  --bg-card-hover: #F3F4F6;
+
+  --accent-primary: #059669; /* Rich Emerald */
+  --accent-primary-hover: #047857;
+  --accent-secondary: #0284C7; /* Sky / Cyan */
+  --accent-blue: #2563EB;
+  --accent-glow: 0 0 16px rgba(5, 150, 105, 0.18);
+  --accent-border: rgba(5, 150, 105, 0.35);
+
+  --accent-crimson: #DC2626;
+  --accent-amber: #D97706;
+
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --text-accent: #059669;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.16);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Base & Sticky Full-Height Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -54,6 +87,7 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
@@ -65,11 +99,19 @@ body {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
   background-image: 
     radial-gradient(circle at 15% 10%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
     radial-gradient(circle at 85% 90%, rgba(6, 182, 212, 0.04) 0%, transparent 45%);
   background-attachment: fixed;
-  padding-bottom: env(safe-area-inset-bottom);
+}
+
+[data-theme="light"] body {
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(5, 150, 105, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(2, 132, 199, 0.03) 0%, transparent 45%);
 }
 
 /* Headings */
@@ -88,15 +130,15 @@ h1, h2, h3, h4 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.9rem 1.5rem;
-  background: rgba(12, 14, 20, 0.92);
+  padding: 0.85rem 1.75rem;
+  background: var(--bg-surface-glass);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-subtle);
   position: sticky;
   top: 0;
   z-index: 100;
-  padding-top: max(0.9rem, env(safe-area-inset-top));
+  padding-top: max(0.85rem, env(safe-area-inset-top));
 }
 
 .brand-logo {
@@ -120,10 +162,10 @@ h1, h2, h3, h4 {
 }
 
 .brand-title {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.01em;
-  color: #FFFFFF;
+  color: var(--text-primary);
 }
 
 .brand-tagline-nav {
@@ -132,10 +174,43 @@ h1, h2, h3, h4 {
   font-weight: 500;
 }
 
-/* Container */
+/* Navbar Actions & Theme Toggle Button */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.theme-toggle-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--accent-primary);
+  transform: scale(1.05);
+  background: var(--bg-card-hover);
+}
+
+/* Container — Flex 1 0 Auto Anchors Footer to Bottom */
 .app-container {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   max-width: 980px;
-  margin: 1.5rem auto 3.5rem;
+  margin: 1.5rem auto;
   padding: 0 1.25rem;
   width: 100%;
 }
@@ -146,7 +221,7 @@ h1, h2, h3, h4 {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  margin: 1.25rem 0;
+  margin: 1.15rem 0;
   opacity: 0.75;
 }
 
@@ -158,22 +233,23 @@ h1, h2, h3, h4 {
 
 .section-divider .icon {
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
 }
 
-/* Card Surface - Compact, Natural Height */
+/* Card Surface - Natural Compact Height */
 .clean-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 1.75rem 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--card-shadow);
   position: relative;
   overflow: hidden;
   height: auto;
+  transition: background-color var(--transition-smooth), border-color var(--transition-smooth);
 }
 
 /* Wizard Progress Track */
@@ -232,10 +308,14 @@ h1, h2, h3, h4 {
   transform: scale(1.08);
 }
 
+[data-theme="light"] .step-node.active {
+  color: var(--accent-primary);
+}
+
 .step-node.completed {
   border-color: var(--accent-primary);
   background: var(--accent-primary);
-  color: #0C0E14;
+  color: #FFFFFF;
 }
 
 /* Selectable Cards Grid - UNIFORM HEIGHTS */
@@ -320,13 +400,12 @@ h1, h2, h3, h4 {
   font-size: 1rem; /* >=16px prevents mobile safari auto-zoom */
   transition: all var(--transition-fast);
   outline: none;
-  min-height: 46px; /* Great touch target */
+  min-height: 46px;
 }
 
 .form-input:focus, .form-select:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-  background: #191E2C;
 }
 
 .form-input.input-error {
@@ -389,7 +468,7 @@ h1, h2, h3, h4 {
 
 .unit-toggle-btn.active {
   background: var(--accent-primary);
-  color: #0C0E14;
+  color: #FFFFFF;
 }
 
 /* Diet Preference Multi-select Tags */
@@ -434,7 +513,7 @@ h1, h2, h3, h4 {
   justify-content: center;
   gap: 0.5rem;
   background: var(--accent-primary);
-  color: #0C0E14;
+  color: #FFFFFF;
   font-family: var(--font-heading);
   font-size: 0.92rem;
   font-weight: 700;
@@ -444,7 +523,7 @@ h1, h2, h3, h4 {
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
-  min-height: 46px; /* Touch target */
+  min-height: 46px;
 }
 
 .btn-primary:hover {
@@ -472,7 +551,7 @@ h1, h2, h3, h4 {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
   border-color: var(--text-primary);
   color: var(--text-primary);
 }
@@ -607,7 +686,7 @@ h1, h2, h3, h4 {
 
 .section-nav-btn.active {
   background: var(--accent-primary);
-  color: #0C0E14;
+  color: #FFFFFF;
   border-color: var(--accent-primary);
 }
 
@@ -694,7 +773,7 @@ h1, h2, h3, h4 {
 
 .day-tab-btn.active {
   background: var(--accent-primary);
-  color: #0C0E14;
+  color: #FFFFFF;
   border-color: var(--accent-primary);
 }
 
@@ -727,7 +806,7 @@ h1, h2, h3, h4 {
 .meal-macros-badge {
   font-size: 0.78rem;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.04);
   padding: 0.2rem 0.55rem;
   border-radius: var(--radius-pill);
 }
@@ -741,7 +820,7 @@ h1, h2, h3, h4 {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
   flex-wrap: wrap;
   gap: 0.4rem;
 }
@@ -779,11 +858,10 @@ h1, h2, h3, h4 {
 .food-swap-btn:hover {
   border-color: var(--accent-secondary);
   background: rgba(6, 182, 212, 0.1);
-  color: #FFFFFF;
 }
 
 .cooking-tip-box {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.03);
   border-left: 3px solid var(--accent-primary);
   padding: 0.6rem 0.85rem;
   margin-top: 0.65rem;
@@ -820,7 +898,7 @@ h1, h2, h3, h4 {
 }
 
 .checklist-item:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .checklist-label {
@@ -845,7 +923,7 @@ h1, h2, h3, h4 {
 
 /* Workout Exercise Card */
 .workout-exercise-card {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.02);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding: 0.85rem 0.95rem;
@@ -895,18 +973,30 @@ h1, h2, h3, h4 {
 .budget-verdict-fits {
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid #10B981;
+  color: #10B981;
+}
+
+[data-theme="dark"] .budget-verdict-fits {
   color: #34D399;
 }
 
 .budget-verdict-tight {
   background: rgba(245, 158, 11, 0.15);
   border: 1px solid #F59E0B;
+  color: #D97706;
+}
+
+[data-theme="dark"] .budget-verdict-tight {
   color: #FBBF24;
 }
 
 .budget-verdict-over_budget {
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid #EF4444;
+  color: #DC2626;
+}
+
+[data-theme="dark"] .budget-verdict-over_budget {
   color: #F87171;
 }
 
@@ -917,7 +1007,7 @@ h1, h2, h3, h4 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   z-index: 999;
@@ -937,6 +1027,18 @@ h1, h2, h3, h4 {
   position: relative;
 }
 
+/* Footer Styling — Anchored firmly to bottom */
+footer.app-footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(10px);
+}
+
 /* ==========================================================================
    MOBILE & RESPONSIVE BREAKPOINTS (iOS & Android Optimization)
    ========================================================================== */
@@ -949,12 +1051,12 @@ h1, h2, h3, h4 {
 
 @media (max-width: 768px) {
   .app-nav {
-    padding: 0.8rem 1rem;
+    padding: 0.75rem 1rem;
   }
   .app-container {
     padding: 0 0.85rem;
     margin-top: 1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
   }
   .clean-card {
     padding: 1.35rem 1rem;
@@ -1011,7 +1113,7 @@ h1, h2, h3, h4 {
     background: #FFFFFF !important;
     color: #111111 !important;
   }
-  .app-nav, .wizard-footer, .food-swap-btn, .result-section-tabs, .day-tabs-wrapper, .no-print {
+  .app-nav, .wizard-footer, .food-swap-btn, .result-section-tabs, .day-tabs-wrapper, .theme-toggle-btn, .no-print {
     display: none !important;
   }
   .app-container {
