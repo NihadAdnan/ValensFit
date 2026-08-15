@@ -6,11 +6,15 @@ using ValensFit.Services.Nutrition;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews()
+var mvcBuilder = builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     });
+
+#if DEBUG
+mvcBuilder.AddRazorRuntimeCompilation();
+#endif
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
