@@ -1,0 +1,945 @@
+/* ==========================================================================
+   VALENSFIT — ROMAN IMPERIAL DESIGN SYSTEM
+   Dark Marble Obsidian, Antique Gold & Imperial Red Palette
+   ========================================================================== */
+
+:root {
+  --bg-primary: #0A0B0E;
+  --bg-surface: #12141C;
+  --bg-surface-elevated: #181B26;
+  --bg-surface-glass: rgba(18, 20, 28, 0.85);
+  --bg-card: #151822;
+  --bg-card-hover: #1E2230;
+
+  --gold-primary: #D4AF37;
+  --gold-antique: #B08D57;
+  --gold-light: #F3E5AB;
+  --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F3E5AB 50%, #AA8232 100%);
+  --gold-glow: 0 0 20px rgba(212, 175, 55, 0.25);
+  --gold-border: rgba(212, 175, 55, 0.3);
+
+  --imperial-red: #7A1F2B;
+  --imperial-red-light: #9E2A2B;
+  --imperial-red-glow: 0 0 18px rgba(122, 31, 43, 0.4);
+
+  --text-primary: #F8F9FA;
+  --text-secondary: #C2C5CE;
+  --text-muted: #7E8494;
+  --text-gold: #F3E5AB;
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-gold: rgba(212, 175, 55, 0.35);
+  
+  --font-roman: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Base & Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(122, 31, 43, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(212, 175, 55, 0.08) 0%, transparent 45%),
+    linear-gradient(180deg, rgba(10, 11, 14, 0.95) 0%, rgba(10, 11, 14, 1) 100%);
+  background-attachment: fixed;
+}
+
+/* Roman Headings */
+h1, h2, h3, h4, .font-roman {
+  font-family: var(--font-roman);
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.gold-text {
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.gold-text-solid {
+  color: var(--gold-primary);
+}
+
+.red-text {
+  color: #E63946;
+}
+
+/* Navbar */
+.roman-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2.5rem;
+  background: rgba(10, 11, 14, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--gold-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+}
+
+.brand-monogram {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1C1F2B 0%, #12141C 100%);
+  border: 1.5px solid var(--gold-primary);
+  box-shadow: var(--gold-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-primary);
+  font-family: var(--font-roman);
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.brand-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #FFFFFF;
+}
+
+.brand-tagline-nav {
+  font-size: 0.75rem;
+  color: var(--gold-antique);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-family: var(--font-roman);
+}
+
+.nav-badge-pill {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--gold-border);
+  color: var(--gold-light);
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Container */
+.app-container {
+  max-width: 1050px;
+  margin: 2rem auto 5rem;
+  padding: 0 1.5rem;
+}
+
+/* Roman Column Divider Motif */
+.column-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  opacity: 0.6;
+}
+
+.column-divider .line {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, var(--gold-antique), transparent);
+}
+
+.column-divider .laurel-icon {
+  color: var(--gold-antique);
+  font-size: 1.1rem;
+}
+
+/* Card Surface */
+.roman-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.roman-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gold-gradient);
+  opacity: 0.8;
+}
+
+/* Wizard Header & Steps Progress */
+.wizard-progress-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.progress-track {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: var(--border-subtle);
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.progress-fill {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  height: 2px;
+  background: var(--gold-gradient);
+  z-index: 2;
+  transform: translateY(-50%);
+  transition: width var(--transition-smooth);
+}
+
+.step-node {
+  position: relative;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-roman);
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.step-node.active {
+  border-color: var(--gold-primary);
+  background: var(--bg-surface-elevated);
+  color: var(--gold-light);
+  box-shadow: var(--gold-glow);
+  transform: scale(1.15);
+}
+
+.step-node.completed {
+  border-color: var(--gold-antique);
+  background: var(--gold-antique);
+  color: #0A0B0E;
+}
+
+/* Selectable Cards (Gender, Goal, Exercise) */
+.card-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.select-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+  position: relative;
+}
+
+.select-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--gold-border);
+  transform: translateY(-3px);
+}
+
+.select-card.selected {
+  background: rgba(212, 175, 55, 0.08);
+  border: 1.5px solid var(--gold-primary);
+  box-shadow: var(--gold-glow);
+}
+
+.select-card-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.select-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.select-card.selected .select-card-title {
+  color: var(--gold-light);
+}
+
+.select-card-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Inputs & Form Controls */
+.form-group {
+  margin-bottom: 1.75rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-roman);
+}
+
+.form-input, .form-select {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.15rem;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+  background: #191D28;
+}
+
+.input-with-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.unit-toggle-group {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.unit-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.unit-toggle-btn.active {
+  background: var(--gold-antique);
+  color: #0A0B0E;
+}
+
+/* Diet Preference Multi-select Tags */
+.tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.diet-tag {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.diet-tag:hover {
+  border-color: var(--gold-border);
+  color: var(--text-primary);
+}
+
+.diet-tag.active {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+}
+
+/* Roman Action Buttons */
+.btn-roman {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: var(--gold-gradient);
+  color: #0D0E12;
+  font-family: var(--font-roman);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.3);
+  text-decoration: none;
+}
+
+.btn-roman:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.45);
+}
+
+.btn-roman:active {
+  transform: translateY(0);
+}
+
+.btn-roman-secondary {
+  background: transparent;
+  border: 1px solid var(--border-gold);
+  color: var(--gold-light);
+  box-shadow: none;
+}
+
+.btn-roman-secondary:hover {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: var(--gold-primary);
+}
+
+.btn-roman-crimson {
+  background: linear-gradient(135deg, #9E2A2B 0%, #7A1F2B 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: var(--imperial-red-glow);
+}
+
+.btn-roman-crimson:hover {
+  background: linear-gradient(135deg, #B33234 0%, #8C2230 100%);
+}
+
+.wizard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Preset Cards on Hero */
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.preset-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.preset-card:hover {
+  border-color: var(--gold-primary);
+  background: var(--bg-card-hover);
+  transform: translateY(-3px);
+}
+
+.preset-card-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gold-antique);
+  letter-spacing: 0.1em;
+}
+
+/* Roman Generation Screen (Step 5) */
+.laurel-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.laurel-spinner {
+  width: 90px;
+  height: 90px;
+  border: 3px solid rgba(212, 175, 55, 0.15);
+  border-top: 3px solid var(--gold-primary);
+  border-right: 3px solid var(--gold-antique);
+  border-radius: 50%;
+  animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  margin-bottom: 2rem;
+  box-shadow: var(--gold-glow);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.gen-steps-list {
+  list-style: none;
+  max-width: 420px;
+  margin: 1.5rem auto 0;
+  text-align: left;
+}
+
+.gen-step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.gen-step-item.active {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.gen-step-item.done {
+  color: #68D391;
+}
+
+/* ==========================================================================
+   RESULTS DASHBOARD (Imperial Plan Display)
+   ========================================================================== */
+
+.hero-stats-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+.hero-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-stat-val {
+  font-family: var(--font-roman);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 0.35rem;
+}
+
+.hero-stat-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold-antique);
+  font-weight: 700;
+}
+
+.hero-stat-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Roman Wax Seal Verdict Badge */
+.wax-seal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-roman);
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 1rem 0;
+}
+
+.wax-seal-fits {
+  background: rgba(39, 110, 70, 0.25);
+  border: 1.5px solid #48BB78;
+  color: #9AE6B4;
+}
+
+.wax-seal-tight {
+  background: rgba(180, 130, 20, 0.25);
+  border: 1.5px solid #ECC94B;
+  color: #FAF089;
+}
+
+.wax-seal-over_budget {
+  background: rgba(158, 42, 43, 0.25);
+  border: 1.5px solid #E53E3E;
+  color: #FEB2B2;
+}
+
+/* Day Plan Tabs */
+.day-tabs-wrapper {
+  display: flex;
+  overflow-x: auto;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.day-tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-roman);
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.day-tab-btn.active {
+  background: var(--gold-antique);
+  color: #0A0B0E;
+  border-color: var(--gold-primary);
+  box-shadow: var(--gold-glow);
+}
+
+/* Meal Cards */
+.meal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  transition: border-color var(--transition-fast);
+}
+
+.meal-card:hover {
+  border-color: var(--border-gold);
+}
+
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.meal-title {
+  font-size: 1.15rem;
+  font-family: var(--font-roman);
+  color: var(--gold-light);
+}
+
+.meal-macros-badge {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-pill);
+}
+
+.food-items-list {
+  list-style: none;
+}
+
+.food-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.food-item-row:last-child {
+  border-bottom: none;
+}
+
+.food-name-qty {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.food-macros-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.food-swap-btn {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--gold-antique);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.food-swap-btn:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.cooking-tip-box {
+  background: rgba(212, 175, 55, 0.05);
+  border-left: 3px solid var(--gold-antique);
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* Grocery Shopping Checklist */
+.grocery-category-block {
+  margin-bottom: 1.5rem;
+}
+
+.grocery-category-title {
+  font-size: 0.95rem;
+  color: var(--gold-light);
+  font-family: var(--font-roman);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.5rem;
+  border-radius: 6px;
+  transition: background var(--transition-fast);
+}
+
+.checklist-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.checklist-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.checklist-checkbox {
+  accent-color: var(--gold-antique);
+  width: 17px;
+  height: 17px;
+}
+
+.checklist-item.checked .checklist-label {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Workout Schedule Cards */
+.workout-exercise-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.workout-exercise-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+}
+
+.workout-exercise-target {
+  font-size: 0.78rem;
+  color: var(--gold-antique);
+  text-transform: uppercase;
+}
+
+.workout-stats-strip {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--gold-light);
+}
+
+.workout-form-cue {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Modal Popup for Food Swap */
+.swap-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.swap-modal-box {
+  background: var(--bg-surface-elevated);
+  border: 1.5px solid var(--gold-primary);
+  box-shadow: var(--gold-glow);
+  border-radius: var(--radius-lg);
+  max-width: 520px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .roman-nav {
+    padding: 1rem 1.25rem;
+  }
+  .brand-title {
+    font-size: 1.15rem;
+  }
+  .app-container {
+    padding: 0 1rem;
+    margin-top: 1.25rem;
+  }
+  .roman-card {
+    padding: 1.5rem 1.25rem;
+  }
+  .card-selector-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-stats-banner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .wizard-footer {
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+  .wizard-footer .btn-roman, .wizard-footer .btn-roman-secondary {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   PRINT / PDF EXPORT STYLESHEET (Imperial Training Scroll)
+   ========================================================================== */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #111111 !important;
+    background-image: none !important;
+  }
+  .roman-nav, .wizard-footer, .food-swap-btn, .day-tabs-wrapper, .no-print {
+    display: none !important;
+  }
+  .app-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .roman-card, .meal-card, .hero-stat-card, .workout-exercise-card {
+    background: #FFFFFF !important;
+    border: 1px solid #CCCCCC !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  .gold-text, .gold-text-solid, .meal-title {
+    color: #8C6212 !important;
+    -webkit-text-fill-color: initial !important;
+  }
+  .wax-seal-badge {
+    border: 2px solid #333333 !important;
+    color: #000000 !important;
+  }
+  .food-item-row, .checklist-item {
+    border-bottom: 1px solid #E0E0E0 !important;
+  }
+}

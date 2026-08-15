@@ -1,0 +1,209 @@
+{
+  "Gym": {
+    "Title": "Centurion Iron Regiment (Gym Program)",
+    "Rationale": "Hypertrophy & strength progression leveraging progressive overload, compound multi-joint movements, and targeted hypertrophy accessories.",
+    "Days3": [
+      {
+        "DayNumber": 1,
+        "DayTitle": "Day I: Push & Core (Chest, Shoulders, Triceps)",
+        "Focus": "Push Power",
+        "IsRestDay": false,
+        "EstimatedMinutes": 50,
+        "Warmup": "5 min dynamic mobility: arm swings, band pull-aparts & push-up warmups",
+        "Cooldown": "5 min chest doorway stretch & triceps overhead stretch",
+        "Exercises": [
+          { "Name": "Barbell / Dumbbell Bench Press", "TargetMuscle": "Chest / Triceps", "Sets": 4, "Reps": "8-10", "RestSeconds": 90, "FormCue": "Retract scapulae, touch lower chest, press with intent", "Regression": "Dumbbell Floor Press", "Progression": "Pause Bench Press (2s at bottom)" },
+          { "Name": "Incline Dumbbell Press", "TargetMuscle": "Upper Chest", "Sets": 3, "Reps": "10-12", "RestSeconds": 75, "FormCue": "Set bench to 30 degrees, full stretch at bottom", "Regression": "Incline Push-ups", "Progression": "Slow 3-second eccentric tempo" },
+          { "Name": "Seated Dumbbell Shoulder Press", "TargetMuscle": "Anterior / Lateral Delts", "Sets": 3, "Reps": "10-12", "RestSeconds": 75, "FormCue": "Core braced, elbows slightly tucked at 45 degrees", "Regression": "Seated Machine Overhead Press", "Progression": "Standing Overhead Barbell Press" },
+          { "Name": "Dumbbell Lateral Raises", "TargetMuscle": "Lateral Delts", "Sets": 4, "Reps": "12-15", "RestSeconds": 60, "FormCue": "Lead with elbows, slight forward lean, control the drop", "Regression": "Cable Lateral Raise", "Progression": "Drop-set on last set" },
+          { "Name": "Triceps Rope Pushdowns", "TargetMuscle": "Triceps", "Sets": 3, "Reps": "12-15", "RestSeconds": 60, "FormCue": "Elbows pinned to sides, spread rope at lockout", "Regression": "Bench Dips", "Progression": "Overhead Cable Extension" },
+          { "Name": "Hanging Knee Raises / Cable Crunch", "TargetMuscle": "Abs / Core", "Sets": 3, "Reps": "15", "RestSeconds": 60, "FormCue": "Curl pelvis upwards, exhale on contraction", "Regression": "Lying Leg Raises", "Progression": "Toes-to-Bar" }
+        ]
+      },
+      {
+        "DayNumber": 2,
+        "DayTitle": "Day II: Pull & Posterior Chain (Back, Rear Delts, Biceps)",
+        "Focus": "Pull Power",
+        "IsRestDay": false,
+        "EstimatedMinutes": 50,
+        "Warmup": "5 min cat-cow, dead hangs & light lat pulldowns",
+        "Cooldown": "5 min lat foam roll & seated hamstring stretch",
+        "Exercises": [
+          { "Name": "Lat Pulldowns (or Neutral Grip Pull-ups)", "TargetMuscle": "Lats / Upper Back", "Sets": 4, "Reps": "8-12", "RestSeconds": 90, "FormCue": "Drive elbows straight down to hips, squeeze lats", "Regression": "Resistance Band Lat Pulldown", "Progression": "Weighted Pull-ups" },
+          { "Name": "Chest-Supported Barbell / Dumbbell Row", "TargetMuscle": "Mid-Back / Rhomboids", "Sets": 4, "Reps": "8-10", "RestSeconds": 90, "FormCue": "Pull to lower ribs, hold squeeze for 1 second", "Regression": "Seated Cable Row", "Progression": "Pendlay Row" },
+          { "Name": "Face Pulls with Rope", "TargetMuscle": "Rear Delts / Rotator Cuff", "Sets": 3, "Reps": "15-20", "RestSeconds": 60, "FormCue": "Pull rope to eye level, rotate external shoulders", "Regression": "Reverse Pec Deck", "Progression": "Slow 3s negative Face Pulls" },
+          { "Name": "Standing Incline Dumbbell Bicep Curls", "TargetMuscle": "Biceps", "Sets": 3, "Reps": "10-12", "RestSeconds": 60, "FormCue": "Full elbow extension at bottom, rotate pinky up", "Regression": "Standing EZ-Bar Curl", "Progression": "Bicep Preacher Curls" },
+          { "Name": "Hammer Curls", "TargetMuscle": "Brachialis / Forearms", "Sets": 3, "Reps": "12-15", "RestSeconds": 60, "FormCue": "Neutral palms, controlled tempo without swinging", "Regression": "Cable Rope Hammer Curls", "Progression": "Cross-body Hammer Curls" }
+        ]
+      },
+      {
+        "DayNumber": 3,
+        "DayTitle": "Day III: Legs, Quads & Glute Armor",
+        "Focus": "Leg Hypertrophy",
+        "IsRestDay": false,
+        "EstimatedMinutes": 55,
+        "Warmup": "5 min bodyweight squats, hip openers & leg swings",
+        "Cooldown": "5 min quad couch stretch & pigeon pose",
+        "Exercises": [
+          { "Name": "Barbell Back Squat / Goblet Squat", "TargetMuscle": "Quads / Glutes", "Sets": 4, "Reps": "8-10", "RestSeconds": 120, "FormCue": "Knees track over toes, break parallel with upright chest", "Regression": "Dumbbell Goblet Squat", "Progression": "Pause Squats (2s at bottom)" },
+          { "Name": "Romanian Deadlift (Dumbbell or Barbell)", "TargetMuscle": "Hamstrings / Glutes", "Sets": 4, "Reps": "8-12", "RestSeconds": 90, "FormCue": "Hinge at hips, push glutes back, soft knees", "Regression": "Dumbbell RDL to knee level", "Progression": "Deficit Romanian Deadlift" },
+          { "Name": "Bulgarian Split Squats (or Walking Lunges)", "TargetMuscle": "Quads / Unilateral Glutes", "Sets": 3, "Reps": "10/leg", "RestSeconds": 75, "FormCue": "Front foot planted firmly, drop back knee straight down", "Regression": "Static Bodyweight Lunges", "Progression": "Weighted Bulgarian Split Squat" },
+          { "Name": "Seated / Standing Calf Raises", "TargetMuscle": "Calves", "Sets": 4, "Reps": "15-20", "RestSeconds": 60, "FormCue": "Full stretch at bottom, 2s pause at top contraction", "Regression": "Single Leg Bodyweight Calf Raise", "Progression": "Heavy Smith Machine Calf Raise" },
+          { "Name": "Plank with Shoulder Taps", "TargetMuscle": "Core Anti-Rotation", "Sets": 3, "Reps": "45 sec", "RestSeconds": 60, "FormCue": "Hips level with floor, glutes clenched tight", "Regression": "Standard Knee Plank", "Progression": "Ab Wheel Rollouts" }
+        ]
+      }
+    ],
+    "Days4": [
+      {
+        "DayNumber": 1,
+        "DayTitle": "Day I: Upper Body Strength (Imperial Push/Pull A)",
+        "Focus": "Upper Hypertrophy",
+        "IsRestDay": false,
+        "EstimatedMinutes": 50,
+        "Warmup": "5 min dynamic upper mobility & band pull-aparts",
+        "Cooldown": "5 min chest & lat stretch",
+        "Exercises": [
+          { "Name": "Barbell Bench Press", "TargetMuscle": "Chest", "Sets": 4, "Reps": "6-8", "RestSeconds": 90, "FormCue": "Solid arch, push feet into ground, full range", "Regression": "Dumbbell Bench Press", "Progression": "Barbell Bench Press (with pause)" },
+          { "Name": "Chest-Supported Row", "TargetMuscle": "Upper Back", "Sets": 4, "Reps": "8-10", "RestSeconds": 90, "FormCue": "Elbows tucked 45 deg, squeeze mid-back", "Regression": "Seated Cable Row", "Progression": "Barbell Bent-Over Row" },
+          { "Name": "Overhead Shoulder Press", "TargetMuscle": "Delts", "Sets": 3, "Reps": "8-10", "RestSeconds": 75, "FormCue": "Glutes tight, press bar straight up over head", "Regression": "Dumbbell Seated Press", "Progression": "Standing Strict Military Press" },
+          { "Name": "Lat Pulldown (Wide Grip)", "TargetMuscle": "Lats", "Sets": 3, "Reps": "10-12", "RestSeconds": 75, "FormCue": "Pull bar to upper collarbone, engage lower traps", "Regression": "Assisted Pull-ups", "Progression": "Bodyweight Pull-ups" },
+          { "Name": "Superset: Incline Bicep Curls + Triceps Pushdowns", "TargetMuscle": "Arms", "Sets": 3, "Reps": "12 each", "RestSeconds": 60, "FormCue": "Strict form, squeeze peak contraction", "Regression": "Standing Dumbbell Curls", "Progression": "Skullcrushers" }
+        ]
+      },
+      {
+        "DayNumber": 2,
+        "DayTitle": "Day II: Lower Body Strength (Quads & Posterior Chain A)",
+        "Focus": "Leg Power",
+        "IsRestDay": false,
+        "EstimatedMinutes": 50,
+        "Warmup": "5 min hip 90/90s & bodyweight squats",
+        "Cooldown": "5 min hamstrings & glute stretches",
+        "Exercises": [
+          { "Name": "Barbell Back Squat", "TargetMuscle": "Quads / Glutes", "Sets": 4, "Reps": "6-8", "RestSeconds": 120, "FormCue": "Chest tall, knees driven outward over toes", "Regression": "Goblet Squats", "Progression": "Tempo Squats (3s down)" },
+          { "Name": "Romanian Deadlift (RDL)", "TargetMuscle": "Hamstrings", "Sets": 4, "Reps": "8-10", "RestSeconds": 90, "FormCue": "Feel deep hamstring stretch, hips push backwards", "Regression": "Dumbbell RDL", "Progression": "Barbell RDL" },
+          { "Name": "Leg Press / Walking Lunges", "TargetMuscle": "Quads / Glutes", "Sets": 3, "Reps": "10-12", "RestSeconds": 75, "FormCue": "Feet shoulder width, avoid knee lock at peak", "Regression": "Bodyweight Lunges", "Progression": "Single Leg Press" },
+          { "Name": "Standing Calf Raises", "TargetMuscle": "Calves", "Sets": 4, "Reps": "15-20", "RestSeconds": 60, "FormCue": "Hold peak contraction for 2 seconds", "Regression": "Bodyweight Calf Raise", "Progression": "Weighted Calf Raise" },
+          { "Name": "Hanging Leg / Knee Raises", "TargetMuscle": "Core", "Sets": 3, "Reps": "12-15", "RestSeconds": 60, "FormCue": "Initiate movement from abs, avoid swinging", "Regression": "Lying Leg Raises", "Progression": "Toes-to-Bar" }
+        ]
+      },
+      {
+        "DayNumber": 3,
+        "DayTitle": "Day III: Active Recovery & Mobility Walk",
+        "Focus": "Recovery",
+        "IsRestDay": true,
+        "EstimatedMinutes": 30,
+        "Warmup": "Gentle full body joint circles",
+        "Cooldown": "Deep breathing & hydration",
+        "Exercises": [
+          { "Name": "Outdoor Brisk Walk (8,000 - 10,000 steps)", "TargetMuscle": "Cardiovascular & Lymphatic Flow", "Sets": 1, "Reps": "30-45 min", "RestSeconds": 0, "FormCue": "Consistent brisk stride, posture upright", "Regression": "20 min flat walk", "Progression": "Incline treadmill 10% slope" }
+        ]
+      },
+      {
+        "DayNumber": 4,
+        "DayTitle": "Day IV: Upper Hypertrophy & Arms (Push/Pull B)",
+        "Focus": "Upper Definition",
+        "IsRestDay": false,
+        "EstimatedMinutes": 50,
+        "Warmup": "5 min dynamic arm circles & face-pulls",
+        "Cooldown": "5 min chest & shoulder stretches",
+        "Exercises": [
+          { "Name": "Incline Dumbbell Bench Press", "TargetMuscle": "Upper Chest", "Sets": 4, "Reps": "8-10", "RestSeconds": 90, "FormCue": "Squeeze pecs at top, control descent", "Regression": "Flat Dumbbell Press", "Progression": "Incline Barbell Press" },
+          { "Name": "Single-Arm Dumbbell Row", "TargetMuscle": "Lats", "Sets": 4, "Reps": "10-12/side", "RestSeconds": 75, "FormCue": "Pull elbow towards back pocket", "Regression": "Seated Cable Row", "Progression": "Kroc Rows (High Reps)" },
+          { "Name": "Dumbbell Lateral Raises", "TargetMuscle": "Side Delts", "Sets": 4, "Reps": "12-15", "RestSeconds": 60, "FormCue": "Light weight, strict form, pause at top", "Regression": "Cable Lateral Raise", "Progression": "Slow 3s eccentric raises" },
+          { "Name": "Rear Delt Cable Face Pulls", "TargetMuscle": "Rear Delts / Traps", "Sets": 3, "Reps": "15-20", "RestSeconds": 60, "FormCue": "External rotation at finish point", "Regression": "Band Pull-aparts", "Progression": "Reverse Fly Machine" },
+          { "Name": "Dumbbell Hammer Curls + Overhead Triceps", "TargetMuscle": "Arms", "Sets": 3, "Reps": "12-15", "RestSeconds": 60, "FormCue": "Strict tension on brachialis & long head triceps", "Regression": "Cable Curls", "Progression": "Incline Dumbbell Curls" }
+        ]
+      }
+    ]
+  },
+  "HomeBodyweight": {
+    "Title": "Gladiator Bodyweight Foundry (Home Program)",
+    "Rationale": "Zero-equipment high-tension calisthenics engineered for muscle tone, core stability, and athletic stamina using leverage progressions.",
+    "Days3": [
+      {
+        "DayNumber": 1,
+        "DayTitle": "Day I: Upper Body Calisthenics & Core",
+        "Focus": "Upper Body & Core",
+        "IsRestDay": false,
+        "EstimatedMinutes": 40,
+        "Warmup": "3 min wrist rotations, shoulder taps & jumping jacks",
+        "Cooldown": "3 min cobra stretch & chest stretch",
+        "Exercises": [
+          { "Name": "Standard Push-Ups (or Incline Push-ups)", "TargetMuscle": "Chest / Shoulders / Triceps", "Sets": 4, "Reps": "10-15", "RestSeconds": 60, "FormCue": "Elbows at 45 degrees, chest touches floor, core solid as plank", "Regression": "Knee Push-ups or Incline (hands on sofa/bed)", "Progression": "Decline Push-ups (feet on chair)" },
+          { "Name": "Pike Push-ups (Shoulder Builder)", "TargetMuscle": "Anterior Delts / Upper Chest", "Sets": 3, "Reps": "8-12", "RestSeconds": 60, "FormCue": "Hips high in inverted V, lower crown of head towards floor", "Regression": "Elevated Hand Pike Hold", "Progression": "Feet-Elevated Pike Push-ups" },
+          { "Name": "Towel / Doorframe Rows (or Under-Table Inverted Rows)", "TargetMuscle": "Upper Back / Biceps", "Sets": 4, "Reps": "10-12", "RestSeconds": 60, "FormCue": "Grip doorframe or sheet anchored in door, pull chest towards it", "Regression": "Towel Doorframe Pulls (shallow angle)", "Progression": "Inverted Rows under sturdy table" },
+          { "Name": "Chair Tricep Dips", "TargetMuscle": "Triceps", "Sets": 3, "Reps": "12-15", "RestSeconds": 60, "FormCue": "Back close to chair edge, lower to 90-degree elbows", "Regression": "Knees bent at 90 degrees", "Progression": "Legs straight out or elevated on stool" },
+          { "Name": "Hollow Body Hold / Deadbug", "TargetMuscle": "Deep Abdominal Core", "Sets": 3, "Reps": "30-45 sec", "RestSeconds": 45, "FormCue": "Lower back glued to floor, engage transverse abdominis", "Regression": "Deadbug with knees bent", "Progression": "Full Hollow Body Rock" }
+        ]
+      },
+      {
+        "DayNumber": 2,
+        "DayTitle": "Day II: Lower Body Power & Glute Pillar",
+        "Focus": "Lower Body Athletics",
+        "IsRestDay": false,
+        "EstimatedMinutes": 40,
+        "Warmup": "3 min high knees, hip openers & air squats",
+        "Cooldown": "3 min quad couch stretch & glute figure-4 stretch",
+        "Exercises": [
+          { "Name": "Tempo Bodyweight Squats (3s down, 1s pause)", "TargetMuscle": "Quads & Glutes", "Sets": 4, "Reps": "15-20", "RestSeconds": 60, "FormCue": "Descend below parallel, push through midfoot, control tempo", "Regression": "Box / Chair Assisted Squats", "Progression": "Jump Squats / Bulgarian Split Squats" },
+          { "Name": "Walking Lunges / Reverse Lunges", "TargetMuscle": "Quads / Glutes / Balance", "Sets": 3, "Reps": "12 each leg", "RestSeconds": 60, "FormCue": "Torso slightly pitched forward for glute focus, knee grazes ground", "Regression": "Static Lunges with hand support", "Progression": "Elevated Rear Foot Bulgarian Split Squats" },
+          { "Name": "Single-Leg Glute Bridges", "TargetMuscle": "Glutes & Hamstrings", "Sets": 3, "Reps": "12 each leg", "RestSeconds": 45, "FormCue": "Drive through heel, hold at peak lock for 2 seconds", "Regression": "Standard 2-Leg Glute Bridge", "Progression": "Elevated Heel Single-Leg Bridge" },
+          { "Name": "Calf Raise Burnout (Single Leg on Step)", "TargetMuscle": "Calves", "Sets": 4, "Reps": "20 each", "RestSeconds": 45, "FormCue": "Full deep stretch at bottom of stair step", "Regression": "Two-leg flat floor calf raises", "Progression": "Slow 3s eccentric single-leg raises" },
+          { "Name": "Side Plank with Hip Abduction", "TargetMuscle": "Obliques / Glute Medius", "Sets": 3, "Reps": "30 sec/side", "RestSeconds": 45, "FormCue": "Straight line from head to heels, lift top leg steadily", "Regression": "Knee Side Plank", "Progression": "Extended Star Plank" }
+        ]
+      },
+      {
+        "DayNumber": 3,
+        "DayTitle": "Day III: Full Body Conditioning & Core Forge",
+        "Focus": "Metabolic & Core Strength",
+        "IsRestDay": false,
+        "EstimatedMinutes": 35,
+        "Warmup": "3 min jumping jacks & mountain climbers",
+        "Cooldown": "3 min child's pose & spinal twist",
+        "Exercises": [
+          { "Name": "Diamond / Close-Grip Push-ups", "TargetMuscle": "Triceps & Inner Pecs", "Sets": 3, "Reps": "8-12", "RestSeconds": 60, "FormCue": "Hands form triangle under sternum, tuck elbows", "Regression": "Knee Diamond Push-ups", "Progression": "Archer Push-ups" },
+          { "Name": "Bodyweight Good Mornings / Hamstring Slides", "TargetMuscle": "Hamstrings / Lower Back", "Sets": 3, "Reps": "15", "RestSeconds": 45, "FormCue": "Hinge at hips with flat back, hands behind head", "Regression": "Lying Hamstring Isometric Bridge", "Progression": "Towel Floor Hamstring Curls" },
+          { "Name": "Mountain Climbers (Controlled Tempo)", "TargetMuscle": "Core / Cardiovascular", "Sets": 3, "Reps": "30-40 total", "RestSeconds": 45, "FormCue": "Drive knees smoothly to chest without bouncing hips", "Regression": "Slow Elevated Mountain Climbers", "Progression": "Cross-Body Speed Climbers" },
+          { "Name": "Plank Shoulder Taps", "TargetMuscle": "Anti-Rotational Core", "Sets": 3, "Reps": "20 taps", "RestSeconds": 45, "FormCue": "Feet wide, lock core to prevent rocking hips", "Regression": "Standard Forearm Plank", "Progression": "Plank to Push-up Transitions" }
+        ]
+      }
+    ]
+  },
+  "WalkingOnly": {
+    "Title": "Centurion Step & Stride Protocol",
+    "Rationale": "Low-impact non-exercise activity thermogenesis (NEAT) for sustainable fat loss, metabolic conditioning, and joint health.",
+    "Days3": [
+      {
+        "DayNumber": 1,
+        "DayTitle": "Daily Stride Discipline (Every Day)",
+        "Focus": "Aerobic Conditioning & NEAT",
+        "IsRestDay": false,
+        "EstimatedMinutes": 45,
+        "Warmup": "2 min ankle circles & calf pumps",
+        "Cooldown": "2 min hamstring & calf stretch",
+        "Exercises": [
+          { "Name": "Morning Post-Breakfast Walk", "TargetMuscle": "Metabolism & Blood Glucose", "Sets": 1, "Reps": "20-25 min", "RestSeconds": 0, "FormCue": "Brisk steady pace (approx 100-110 steps/min), upright posture", "Regression": "15 min casual stroll", "Progression": "Brisk incline walk (treadmill or hill)" },
+          { "Name": "Evening / Post-Dinner Digestive Walk", "TargetMuscle": "NEAT & Digestion", "Sets": 1, "Reps": "20-25 min", "RestSeconds": 0, "FormCue": "Relaxed steady pace, nose breathing", "Regression": "15 min post-meal stroll", "Progression": "Weighted backpack walk (Rucking with 3-5 kg)" }
+        ]
+      }
+    ]
+  },
+  "NoExercise": {
+    "Title": "Nutrition-Centric Foundation Plan",
+    "Rationale": "100% of body recomposition in this phase is driven by precise caloric deficit and optimal protein pacing.",
+    "Days3": [
+      {
+        "DayNumber": 1,
+        "DayTitle": "Daily Activity Recommendation (Gentle Nudge)",
+        "Focus": "Baseline Vitality",
+        "IsRestDay": true,
+        "EstimatedMinutes": 20,
+        "Warmup": "Gentle neck and shoulder rolls",
+        "Cooldown": "Hydration and deep relaxation",
+        "Exercises": [
+          { "Name": "Daily Incidental Walking Target (6,000 - 8,000 steps)", "TargetMuscle": "Metabolic Circulation", "Sets": 1, "Reps": "Throughout day", "RestSeconds": 0, "FormCue": "Take stairs when possible, 5-min movement breaks every hour of desk work", "Regression": "4,000 daily steps", "Progression": "8,000+ daily steps" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: valensfit-web
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Ollama__DockerEndpoint=http://ollama:11434
+      - Ollama__Endpoint=http://ollama:11434
+      - Ollama__Model=llama3.2:1b
+      - Ollama__TimeoutSeconds=10
+      - Ollama__EnableAI=true
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    networks:
+      - valensfit-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: valensfit-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - valensfit-net
+
+networks:
+  valensfit-net:
+    driver: bridge
+
+volumes:
+  ollama_data:
+    driver: local

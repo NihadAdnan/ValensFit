@@ -1,0 +1,472 @@
+@model ValensFit.Models.UserInputModel
+@{
+    ViewData["Title"] = "Forge Your Personalized Diet & Fitness Plan";
+}
+
+<div class="roman-card" id="wizardContainer">
+    <!-- Wizard Progress Tracker (Steps 1-4) -->
+    <div class="wizard-progress-bar no-print" id="progressBarSection" style="display: none;">
+        <div class="progress-track"></div>
+        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        
+        <div class="step-node active" data-step="1" title="Identity">I</div>
+        <div class="step-node" data-step="2" title="Biometrics">II</div>
+        <div class="step-node" data-step="3" title="Nutrition & Budget">III</div>
+        <div class="step-node" data-step="4" title="Regiment">IV</div>
+    </div>
+
+    <!-- Hidden Form Elements for Submission -->
+    <form id="planForm" method="post" action="/Plan/Generate">
+        
+        <!-- =================================================================
+             STEP 0: HERO & LANDING
+             ================================================================= -->
+        <div class="wizard-step active" id="step0">
+            <div style="text-align: center; padding: 1.5rem 0;">
+                <div class="column-divider">
+                    <div class="line"></div>
+                    <div class="laurel-icon">❖ ◈ ❖</div>
+                    <div class="line"></div>
+                </div>
+
+                <h1 style="font-size: 2.8rem; margin: 1rem 0 0.5rem; line-height: 1.2;">
+                    FORGE YOUR <span class="gold-text">IMPERIAL</span> PHYSIQUE
+                </h1>
+                
+                <p style="font-size: 1.15rem; color: var(--text-secondary); max-width: 650px; margin: 0 auto 1.75rem auto;">
+                    A free, guest-only nutrition & training architect. 100% deterministic sports science, instant 7-day meal splits, and AI-grounded local grocery budgeting.
+                </p>
+
+                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+                    <button type="button" class="btn-roman" onclick="Wizard.goToStep(1)">
+                        <span>BEGIN JOURNEY</span>
+                        <span>➔</span>
+                    </button>
+                </div>
+
+                <div class="column-divider">
+                    <div class="line"></div>
+                    <div class="laurel-icon">QUICK TEST PRESETS</div>
+                    <div class="line"></div>
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="presets-grid">
+                    <div class="preset-card" onclick="Wizard.loadPreset('student_cut')">
+                        <div class="preset-card-tag">Bangladesh · Dhaka</div>
+                        <div style="font-weight: 700; font-size: 1.05rem; margin: 0.35rem 0; color: var(--gold-light);">Student Budget Cut (BDT 7,000)</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">22y male, 78kg, 4-day gym split, halal chicken+egg focus, office lunch simple mode.</div>
+                    </div>
+
+                    <div class="preset-card" onclick="Wizard.loadPreset('hypertrophy')">
+                        <div class="preset-card-tag">USA · Chicago</div>
+                        <div style="font-weight: 700; font-size: 1.05rem; margin: 0.35rem 0; color: var(--gold-light);">Hypertrophy Bulk ($350/mo)</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">26y male, 75kg, 5-day PPL strength & mass surplus with high protein.</div>
+                    </div>
+
+                    <div class="preset-card" onclick="Wizard.loadPreset('home_fit')">
+                        <div class="preset-card-tag">UK · London</div>
+                        <div style="font-weight: 700; font-size: 1.05rem; margin: 0.35rem 0; color: var(--gold-light);">Home Calisthenics (£200/mo)</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">29y female, 62kg, 3-day bodyweight foundry, vegetarian diet.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             STEP 1: IDENTITY (First Name)
+             ================================================================= -->
+        <div class="wizard-step" id="step1" style="display: none;">
+            <div class="column-divider">
+                <div class="line"></div>
+                <div class="laurel-icon">CHAPTER I · IDENTITY</div>
+                <div class="line"></div>
+            </div>
+
+            <h2 style="font-size: 1.8rem; text-align: center; margin-bottom: 0.5rem;">WHAT IS YOUR NAME, WARRIOR?</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
+                Used solely for greeting your personal training scroll. Never stored in any database.
+            </p>
+
+            <div style="max-width: 460px; margin: 0 auto;">
+                <div class="form-group">
+                    <label class="form-label" for="FirstName">First Name</label>
+                    <input type="text" id="FirstName" name="FirstName" class="form-input" value="@Model.FirstName" placeholder="e.g. Marcus, Elena, Rafi" required />
+                </div>
+            </div>
+
+            <div class="wizard-footer">
+                <button type="button" class="btn-roman-secondary btn-roman" onclick="Wizard.goToStep(0)">
+                    <span>Back</span>
+                </button>
+                <button type="button" class="btn-roman" onclick="Wizard.validateStep1()">
+                    <span>Continue</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             STEP 2: BIOMETRICS & GOAL
+             ================================================================= -->
+        <div class="wizard-step" id="step2" style="display: none;">
+            <div class="column-divider">
+                <div class="line"></div>
+                <div class="laurel-icon">CHAPTER II · BIOMETRICS & METABOLISM</div>
+                <div class="line"></div>
+            </div>
+
+            <h2 style="font-size: 1.8rem; text-align: center; margin-bottom: 0.5rem;">METABOLIC PROFILE</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
+                Exact physiological metrics to compute your Basal Metabolic Rate (BMR) and daily expenditure.
+            </p>
+
+            <!-- Gender Cards -->
+            <label class="form-label">Biological Sex</label>
+            <input type="hidden" id="Gender" name="Gender" value="@Model.Gender" />
+            <div class="card-selector-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="select-card @(Model.Gender == "Male" ? "selected" : "")" onclick="Wizard.setGender('Male', this)">
+                    <span class="select-card-icon">⚡</span>
+                    <div class="select-card-title">Male</div>
+                    <div class="select-card-desc">BMR: 10w + 6.25h - 5a + 5</div>
+                </div>
+                <div class="select-card @(Model.Gender == "Female" ? "selected" : "")" onclick="Wizard.setGender('Female', this)">
+                    <span class="select-card-icon">🌿</span>
+                    <div class="select-card-title">Female</div>
+                    <div class="select-card-desc">BMR: 10w + 6.25h - 5a - 161</div>
+                </div>
+                <div class="select-card @(Model.Gender == "Other" ? "selected" : "")" onclick="Wizard.setGender('Other', this)">
+                    <span class="select-card-icon">❖</span>
+                    <div class="select-card-title">Neutral</div>
+                    <div class="select-card-desc">BMR: Standard Midpoint</div>
+                </div>
+            </div>
+
+            <!-- Age & Height & Weight in grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" for="Age">Age (Years)</label>
+                    <input type="number" id="Age" name="Age" class="form-input" min="13" max="80" value="@Model.Age" required />
+                    <small id="ageDisclaimer" style="color: #ECC94B; font-size: 0.75rem; display: none; margin-top: 0.3rem;">
+                        ⚠️ Under-18: Conservative deficit safeguards automatically applied.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label class="form-label" style="margin-bottom: 0;">Height</label>
+                        <div class="unit-toggle-group">
+                            <button type="button" class="unit-toggle-btn active" id="btnHeightCm" onclick="Wizard.setHeightUnit('cm')">cm</button>
+                            <button type="button" class="unit-toggle-btn" id="btnHeightFt" onclick="Wizard.setHeightUnit('ft')">ft/in</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="HeightUnit" name="HeightUnit" value="cm" />
+                    
+                    <div id="heightCmGroup">
+                        <input type="number" id="Height" name="Height" class="form-input" min="120" max="230" step="0.5" value="@Model.Height" />
+                    </div>
+                    <div id="heightFtGroup" style="display: none; gap: 0.5rem;">
+                        <input type="number" id="HeightFt" class="form-input" placeholder="Feet" min="4" max="7" value="5" />
+                        <input type="number" id="HeightInches" name="HeightInches" class="form-input" placeholder="Inches" min="0" max="11" value="9" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label class="form-label" style="margin-bottom: 0;">Weight</label>
+                        <div class="unit-toggle-group">
+                            <button type="button" class="unit-toggle-btn active" id="btnWeightKg" onclick="Wizard.setWeightUnit('kg')">kg</button>
+                            <button type="button" class="unit-toggle-btn" id="btnWeightLb" onclick="Wizard.setWeightUnit('lb')">lbs</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="WeightUnit" name="WeightUnit" value="kg" />
+                    <input type="number" id="Weight" name="Weight" class="form-input" min="30" max="250" step="0.5" value="@Model.Weight" />
+                </div>
+            </div>
+
+            <!-- Activity Level Cards -->
+            <label class="form-label" style="margin-top: 1rem;">Daily Lifestyle & Activity</label>
+            <input type="hidden" id="ActivityLevel" name="ActivityLevel" value="@Model.ActivityLevel" />
+            <div class="card-selector-grid">
+                <div class="select-card @(Model.ActivityLevel == "Sedentary" ? "selected" : "")" onclick="Wizard.setActivity('Sedentary', this)">
+                    <div class="select-card-title">Sedentary (1.2×)</div>
+                    <div class="select-card-desc">Desk job, minimal structured movement.</div>
+                </div>
+                <div class="select-card @(Model.ActivityLevel == "LightlyActive" ? "selected" : "")" onclick="Wizard.setActivity('LightlyActive', this)">
+                    <div class="select-card-title">Lightly Active (1.375×)</div>
+                    <div class="select-card-desc">Light training / walking 1–3 days/week.</div>
+                </div>
+                <div class="select-card @(Model.ActivityLevel == "ModeratelyActive" ? "selected" : "")" onclick="Wizard.setActivity('ModeratelyActive', this)">
+                    <div class="select-card-title">Moderately Active (1.55×)</div>
+                    <div class="select-card-desc">Moderate training 3–5 days/week.</div>
+                </div>
+                <div class="select-card @(Model.ActivityLevel == "VeryActive" ? "selected" : "")" onclick="Wizard.setActivity('VeryActive', this)">
+                    <div class="select-card-title">Very Active (1.725×)</div>
+                    <div class="select-card-desc">Hard training 6–7 days/week.</div>
+                </div>
+            </div>
+
+            <!-- Goal Cards -->
+            <label class="form-label" style="margin-top: 1rem;">Primary Directive / Goal</label>
+            <input type="hidden" id="Goal" name="Goal" value="@Model.Goal" />
+            <div class="card-selector-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="select-card @(Model.Goal == "LoseFat" ? "selected" : "")" onclick="Wizard.setGoal('LoseFat', this)">
+                    <span class="select-card-icon">⚔️</span>
+                    <div class="select-card-title">Lose Fat</div>
+                    <div class="select-card-desc">Calibrated deficit (15-20%) preserving muscle.</div>
+                </div>
+                <div class="select-card @(Model.Goal == "Maintain" ? "selected" : "")" onclick="Wizard.setGoal('Maintain', this)">
+                    <span class="select-card-icon">⚖️</span>
+                    <div class="select-card-title">Maintain / Recomp</div>
+                    <div class="select-card-desc">Iso-caloric athletic conditioning.</div>
+                </div>
+                <div class="select-card @(Model.Goal == "BuildMuscle" ? "selected" : "")" onclick="Wizard.setGoal('BuildMuscle', this)">
+                    <span class="select-card-icon">🏛️</span>
+                    <div class="select-card-title">Build Muscle</div>
+                    <div class="select-card-desc">Controlled lean surplus (+10-12%).</div>
+                </div>
+            </div>
+
+            <!-- Optional Pace Sanity Check Fields (Shown for LoseFat) -->
+            <div id="fatLossPaceSection" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1rem;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--gold-antique); margin-bottom: 0.5rem; text-transform: uppercase;">
+                    Optional: Target Pace Sanity Check
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label class="form-label" style="font-size: 0.75rem;">Target Weight Loss (kg)</label>
+                        <input type="number" id="TargetWeightLossKg" name="TargetWeightLossKg" class="form-input" placeholder="e.g. 5" min="1" max="50" step="0.5" value="@Model.TargetWeightLossKg" />
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.75rem;">Timeframe (Weeks)</label>
+                        <input type="number" id="TimeframeWeeks" name="TimeframeWeeks" class="form-input" placeholder="e.g. 8" min="2" max="52" value="@Model.TimeframeWeeks" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-footer">
+                <button type="button" class="btn-roman-secondary btn-roman" onclick="Wizard.goToStep(1)">
+                    <span>Back</span>
+                </button>
+                <button type="button" class="btn-roman" onclick="Wizard.validateStep2()">
+                    <span>Continue</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             STEP 3: LOCATION, BUDGET & NUTRITION PREFERENCES
+             ================================================================= -->
+        <div class="wizard-step" id="step3" style="display: none;">
+            <div class="column-divider">
+                <div class="line"></div>
+                <div class="laurel-icon">CHAPTER III · REGION & SUSTENANCE</div>
+                <div class="line"></div>
+            </div>
+
+            <h2 style="font-size: 1.8rem; text-align: center; margin-bottom: 0.5rem;">LOCATION & BUDGET GROUNDING</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
+                Price grounding anchors grocery cost estimates to real market data in your specific territory.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label" for="Country">Country</label>
+                    <select id="Country" name="Country" class="form-select" onchange="Wizard.onCountryChange(this.value)">
+                        <option value="Bangladesh" selected>Bangladesh</option>
+                        <option value="United States">United States</option>
+                        <option value="India">India</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="European Union">European Union</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="CityRegion">City / Region (Optional)</label>
+                    <input type="text" id="CityRegion" name="CityRegion" class="form-input" value="@Model.CityRegion" placeholder="e.g. Dhaka, Chicago, London" />
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <label class="form-label" style="margin-bottom: 0;">Monthly Grocery Budget</label>
+                        <span id="currencyLabel" style="color: var(--gold-primary); font-weight: 700; font-size: 0.85rem;">BDT (৳)</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="hidden" id="Currency" name="Currency" value="@Model.Currency" />
+                        <input type="number" id="MonthlyBudget" name="MonthlyBudget" class="form-input" value="@Model.MonthlyBudget" placeholder="e.g. 7000" min="0" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diet Preference Multi-select Tags -->
+            <label class="form-label" style="margin-top: 1rem;">Dietary Guidelines & Restrictions</label>
+            <div class="tags-cloud" id="dietTagsCloud">
+                <div class="diet-tag active" data-tag="Halal" onclick="Wizard.toggleDietTag(this, 'Halal')">Halal</div>
+                <div class="diet-tag active" data-tag="Egg + Chicken Only" onclick="Wizard.toggleDietTag(this, 'Egg + Chicken Only')">Egg + Chicken Only</div>
+                <div class="diet-tag" data-tag="Vegetarian" onclick="Wizard.toggleDietTag(this, 'Vegetarian')">Vegetarian</div>
+                <div class="diet-tag" data-tag="Vegan" onclick="Wizard.toggleDietTag(this, 'Vegan')">Vegan</div>
+                <div class="diet-tag" data-tag="No beef" onclick="Wizard.toggleDietTag(this, 'No beef')">No Beef</div>
+                <div class="diet-tag" data-tag="No pork" onclick="Wizard.toggleDietTag(this, 'No pork')">No Pork</div>
+                <div class="diet-tag" data-tag="No fish" onclick="Wizard.toggleDietTag(this, 'No fish')">No Fish</div>
+                <div class="diet-tag" data-tag="Lactose Free" onclick="Wizard.toggleDietTag(this, 'Lactose Free')">Dairy / Lactose Free</div>
+                <div class="diet-tag" data-tag="Gluten Free" onclick="Wizard.toggleDietTag(this, 'Gluten Free')">Gluten Free</div>
+                <div class="diet-tag" data-tag="Nut Free" onclick="Wizard.toggleDietTag(this, 'Nut Free')">Nut Free</div>
+            </div>
+
+            <!-- Free text exclusions -->
+            <div class="form-group" style="margin-top: 1.25rem;">
+                <label class="form-label" for="CustomRestrictions">Custom Allergies / Food Exclusions</label>
+                <input type="text" id="CustomRestrictions" name="CustomRestrictions" class="form-input" placeholder="e.g. shrimp, peanuts, dairy, mushrooms" value="@Model.CustomRestrictions" />
+            </div>
+
+            <!-- Office Lunch Toggle -->
+            <div style="background: rgba(212,175,55,0.05); border: 1px solid var(--border-gold); border-radius: var(--radius-sm); padding: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--gold-light);">Office / Outside Lunch Mode</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Keeps lunch simple/portable (single protein + veg) and redistributes calories to breakfast and dinner.</div>
+                </div>
+                <input type="checkbox" id="OfficeLunch" name="OfficeLunch" value="true" style="width: 20px; height: 20px; accent-color: var(--gold-antique);" />
+            </div>
+
+            <div class="wizard-footer">
+                <button type="button" class="btn-roman-secondary btn-roman" onclick="Wizard.goToStep(2)">
+                    <span>Back</span>
+                </button>
+                <button type="button" class="btn-roman" onclick="Wizard.validateStep3()">
+                    <span>Continue</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             STEP 4: TRAINING & EXERCISE REGIMENT
+             ================================================================= -->
+        <div class="wizard-step" id="step4" style="display: none;">
+            <div class="column-divider">
+                <div class="line"></div>
+                <div class="laurel-icon">CHAPTER IV · TRAINING DISCIPLINE</div>
+                <div class="line"></div>
+            </div>
+
+            <h2 style="font-size: 1.8rem; text-align: center; margin-bottom: 0.5rem;">EXERCISE REGIMENT</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">
+                Select your preferred physical discipline to forge strength, cardiovascular stamina, and joint integrity.
+            </p>
+
+            <!-- Exercise Preference Cards -->
+            <label class="form-label">Training Modality</label>
+            <input type="hidden" id="ExercisePreference" name="ExercisePreference" value="@Model.ExercisePreference" />
+            <div class="card-selector-grid">
+                <div class="select-card @(Model.ExercisePreference == "Gym" ? "selected" : "")" onclick="Wizard.setExercise('Gym', this)">
+                    <span class="select-card-icon">🏋️</span>
+                    <div class="select-card-title">Gym Resistance</div>
+                    <div class="select-card-desc">Barbell, dumbbell & cable hypertrophy split.</div>
+                </div>
+                <div class="select-card @(Model.ExercisePreference == "HomeBodyweight" ? "selected" : "")" onclick="Wizard.setExercise('HomeBodyweight', this)">
+                    <span class="select-card-icon">🤸</span>
+                    <div class="select-card-title">Home Bodyweight</div>
+                    <div class="select-card-desc">Zero equipment calisthenics with regressions.</div>
+                </div>
+                <div class="select-card @(Model.ExercisePreference == "WalkingOnly" ? "selected" : "")" onclick="Wizard.setExercise('WalkingOnly', this)">
+                    <span class="select-card-icon">🚶</span>
+                    <div class="select-card-title">Walking Protocol</div>
+                    <div class="select-card-desc">Daily structured 8k–10k step NEAT conditioning.</div>
+                </div>
+                <div class="select-card @(Model.ExercisePreference == "NoExercise" ? "selected" : "")" onclick="Wizard.setExercise('NoExercise', this)">
+                    <span class="select-card-icon">🛡️</span>
+                    <div class="select-card-title">Diet Only</div>
+                    <div class="select-card-desc">100% nutritional focus with gentle vitality walking.</div>
+                </div>
+            </div>
+
+            <!-- Schedule & Session duration -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" for="DaysPerWeek">Training Days Per Week</label>
+                    <select id="DaysPerWeek" name="DaysPerWeek" class="form-select">
+                        <option value="3">3 Days / Week (Full Body Split)</option>
+                        <option value="4" selected>4 Days / Week (Upper / Lower)</option>
+                        <option value="5">5 Days / Week (Push / Pull / Legs)</option>
+                        <option value="6">6 Days / Week (High Frequency)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="MinutesPerSession">Minutes Per Session</label>
+                    <select id="MinutesPerSession" name="MinutesPerSession" class="form-select">
+                        <option value="30">30 Minutes (High Density)</option>
+                        <option value="45" selected>45 Minutes (Optimal Balance)</option>
+                        <option value="60">60 Minutes (Full Volume)</option>
+                        <option value="75">75 Minutes (Extended Regiment)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="ExperienceLevel">Experience Rating</label>
+                    <select id="ExperienceLevel" name="ExperienceLevel" class="form-select">
+                        <option value="Beginner" selected>Novice / Beginner (Form focus)</option>
+                        <option value="Intermediate">Intermediate (Progressive overload)</option>
+                        <option value="Advanced">Advanced (High volume & intensity)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="wizard-footer">
+                <button type="button" class="btn-roman-secondary btn-roman" onclick="Wizard.goToStep(3)">
+                    <span>Back</span>
+                </button>
+                <button type="button" class="btn-roman btn-roman-crimson" onclick="Wizard.submitAndGenerate()">
+                    <span>FORGE MY PLAN</span>
+                    <span>⚡</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             STEP 5: GENERATING ANIMATED STATE
+             ================================================================= -->
+        <div class="wizard-step" id="step5" style="display: none;">
+            <div class="laurel-spinner-container">
+                <div class="laurel-spinner"></div>
+                <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">
+                    FORGING YOUR <span class="gold-text">IMPERIAL</span> SCROLL
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 500px;">
+                    Executing deterministic metabolic equations, non-repeating meal rotations, and local market price grounding...
+                </p>
+
+                <ul class="gen-steps-list">
+                    <li class="gen-step-item active" id="genStep1">
+                        <span>❖</span>
+                        <span>Computing Mifflin-St Jeor BMR & TDEE</span>
+                    </li>
+                    <li class="gen-step-item" id="genStep2">
+                        <span>❖</span>
+                        <span>Calibrating Protein-First Macro Partitioning</span>
+                    </li>
+                    <li class="gen-step-item" id="genStep3">
+                        <span>❖</span>
+                        <span>Solving 7-Day Rotating Food & Portion Solver</span>
+                    </li>
+                    <li class="gen-step-item" id="genStep4">
+                        <span>❖</span>
+                        <span>Grounding Regional Grocery Prices & Budget Verdict</span>
+                    </li>
+                    <li class="gen-step-item" id="genStep5">
+                        <span>❖</span>
+                        <span>Finalizing Personalized Workout Schedule</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/wizard.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ValensFit.Tests\**" />
+    <Content Remove="ValensFit.Tests\**" />
+    <EmbeddedResource Remove="ValensFit.Tests\**" />
+    <None Remove="ValensFit.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
