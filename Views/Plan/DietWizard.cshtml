@@ -1,0 +1,253 @@
+@model ValensFit.Models.UserInputModel
+@{
+    ViewData["Title"] = "Diet & Nutrition Architect (Dhaka)";
+}
+
+<div class="clean-card" id="dietWizardContainer">
+    <!-- Wizard Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+        <div>
+            <a href="/" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Modes</a>
+            <h1 style="font-size: 1.6rem; margin-top: 0.2rem;">🥗 Diet & Meal Plan Architect</h1>
+        </div>
+        <span class="budget-verdict-pill budget-verdict-fits">Dhaka, Bangladesh</span>
+    </div>
+
+    <!-- Step Progress Tracker -->
+    <div class="wizard-progress-bar no-print" id="dietProgressBar">
+        <div class="progress-track"></div>
+        <div class="progress-fill" id="dietProgressFill" style="width: 0%;"></div>
+        
+        <div class="step-node active" data-step="1" title="Identity">1</div>
+        <div class="step-node" data-step="2" title="Biometrics">2</div>
+        <div class="step-node" data-step="3" title="Nutrition & Budget">3</div>
+    </div>
+
+    <form id="dietPlanForm" onsubmit="return false;">
+        
+        <!-- STEP 1: IDENTITY -->
+        <div class="wizard-step active" id="dietStep1">
+            <h2 style="font-size: 1.25rem; margin-bottom: 0.35rem;">What should we call you?</h2>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                Let's set up your profile for personalized portioning.
+            </p>
+
+            <div class="form-group">
+                <label class="form-label" for="dietFirstName">Your Name *</label>
+                <input type="text" id="dietFirstName" class="form-input" placeholder="e.g. Rafi, Tanvir, Nusrat" required />
+                <div class="validation-msg" id="dietNameValMsg">Please enter your name to proceed.</div>
+            </div>
+
+            <div class="wizard-footer">
+                <a href="/" class="btn-secondary">Cancel</a>
+                <button type="button" class="btn-primary" onclick="DietWizard.nextStep(1)">
+                    <span>Next: Biometrics</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2: BIOMETRICS & ENERGY BASELINE -->
+        <div class="wizard-step" id="dietStep2" style="display: none;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 0.35rem;">Biometrics & Energy Baseline</h2>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                Accurately calculated using the Mifflin-St Jeor metabolic formula.
+            </p>
+
+            <!-- Biological Sex -->
+            <div class="form-group">
+                <label class="form-label">Biological Sex *</label>
+                <div class="card-selector-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="select-card selected" data-field="dietGender" data-value="Male" onclick="DietWizard.selectCard(this, 'dietGender', 'Male')">
+                        <div class="select-card-title">Male</div>
+                        <div class="select-card-desc">+5 kcal Mifflin constant</div>
+                    </div>
+                    <div class="select-card" data-field="dietGender" data-value="Female" onclick="DietWizard.selectCard(this, 'dietGender', 'Female')">
+                        <div class="select-card-title">Female</div>
+                        <div class="select-card-desc">-161 kcal Mifflin constant</div>
+                    </div>
+                </div>
+                <input type="hidden" id="dietGender" value="Male" />
+            </div>
+
+            <!-- Age, Height, Weight Row -->
+            <div class="biometrics-row">
+                <div class="form-group">
+                    <div class="input-header-row">
+                        <label class="form-label" for="dietAge" style="margin-bottom: 0;">Age (Years) *</label>
+                    </div>
+                    <input type="number" id="dietAge" class="form-input" min="13" max="80" placeholder="e.g. 24" required />
+                    <div class="validation-msg" id="dietAgeValMsg">Age must be between 13 and 80.</div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-header-row">
+                        <label class="form-label" style="margin-bottom: 0;">Height *</label>
+                        <div class="unit-toggle-group">
+                            <button type="button" class="unit-toggle-btn active" id="dietUnitCmBtn" onclick="DietWizard.setHeightUnit('cm')">cm</button>
+                            <button type="button" class="unit-toggle-btn" id="dietUnitFtBtn" onclick="DietWizard.setHeightUnit('ft')">ft/in</button>
+                        </div>
+                    </div>
+                    <div id="dietHeightCmWrap">
+                        <input type="number" id="dietHeightCm" class="form-input" min="100" max="250" placeholder="e.g. 175" />
+                    </div>
+                    <div id="dietHeightFtWrap" style="display: none; gap: 0.5rem;">
+                        <input type="number" id="dietHeightFt" class="form-input" min="3" max="8" placeholder="Feet (5)" style="width: 50%;" />
+                        <input type="number" id="dietHeightIn" class="form-input" min="0" max="11" placeholder="Inches (9)" style="width: 50%;" />
+                    </div>
+                    <div class="validation-msg" id="dietHeightValMsg">Please enter a valid height.</div>
+                    <input type="hidden" id="dietHeightUnit" value="cm" />
+                </div>
+
+                <div class="form-group">
+                    <div class="input-header-row">
+                        <label class="form-label" style="margin-bottom: 0;">Weight *</label>
+                        <div class="unit-toggle-group">
+                            <button type="button" class="unit-toggle-btn active" id="dietUnitKgBtn" onclick="DietWizard.setWeightUnit('kg')">kg</button>
+                            <button type="button" class="unit-toggle-btn" id="dietUnitLbBtn" onclick="DietWizard.setWeightUnit('lb')">lbs</button>
+                        </div>
+                    </div>
+                    <input type="number" id="dietWeight" class="form-input" min="25" max="300" placeholder="e.g. 70" required />
+                    <div class="validation-msg" id="dietWeightValMsg">Please enter a valid weight.</div>
+                    <input type="hidden" id="dietWeightUnit" value="kg" />
+                </div>
+            </div>
+
+            <!-- Activity Baseline -->
+            <div class="form-group">
+                <label class="form-label">Daily Activity Baseline</label>
+                <div class="card-selector-grid">
+                    <div class="select-card" data-field="dietActivity" data-value="Sedentary" onclick="DietWizard.selectCard(this, 'dietActivity', 'Sedentary')">
+                        <div class="select-card-title">Sedentary</div>
+                        <div class="select-card-desc">Desk job / minimal daily steps</div>
+                    </div>
+                    <div class="select-card selected" data-field="dietActivity" data-value="ModeratelyActive" onclick="DietWizard.selectCard(this, 'dietActivity', 'ModeratelyActive')">
+                        <div class="select-card-title">Moderate</div>
+                        <div class="select-card-desc">Daily commute, ~6k-8k steps</div>
+                    </div>
+                    <div class="select-card" data-field="dietActivity" data-value="VeryActive" onclick="DietWizard.selectCard(this, 'dietActivity', 'VeryActive')">
+                        <div class="select-card-title">Very Active</div>
+                        <div class="select-card-desc">High movement, 10k+ steps</div>
+                    </div>
+                </div>
+                <input type="hidden" id="dietActivity" value="ModeratelyActive" />
+            </div>
+
+            <div class="wizard-footer">
+                <button type="button" class="btn-secondary" onclick="DietWizard.goToStep(1)">Back</button>
+                <button type="button" class="btn-primary" onclick="DietWizard.nextStep(2)">
+                    <span>Next: Goals & Preferences</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3: NUTRITION GOALS & DHAKA BUDGET -->
+        <div class="wizard-step" id="dietStep3" style="display: none;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 0.35rem;">Nutrition Goal & Dhaka Preferences</h2>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                Customize your meal structure, outside lunch habits, and monthly budget.
+            </p>
+
+            <!-- Primary Goal -->
+            <div class="form-group">
+                <label class="form-label">Nutritional Goal</label>
+                <div class="card-selector-grid">
+                    <div class="select-card selected" data-field="dietGoal" data-value="LoseFat" onclick="DietWizard.selectCard(this, 'dietGoal', 'LoseFat')">
+                        <div class="select-card-title">🔥 Fat Loss</div>
+                        <div class="select-card-desc">-400 kcal steady deficit</div>
+                    </div>
+                    <div class="select-card" data-field="dietGoal" data-value="Maintain" onclick="DietWizard.selectCard(this, 'dietGoal', 'Maintain')">
+                        <div class="select-card-title">⚖️ Recomp / Maintain</div>
+                        <div class="select-card-desc">Equilibrium energy balance</div>
+                    </div>
+                    <div class="select-card" data-field="dietGoal" data-value="BuildMuscle" onclick="DietWizard.selectCard(this, 'dietGoal', 'BuildMuscle')">
+                        <div class="select-card-title">💪 Muscle Growth</div>
+                        <div class="select-card-desc">+300 kcal lean surplus</div>
+                    </div>
+                </div>
+                <input type="hidden" id="dietGoal" value="LoseFat" />
+            </div>
+
+            <!-- Breakfast Style -->
+            <div class="form-group">
+                <label class="form-label">Breakfast Preference</label>
+                <div class="card-selector-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="select-card selected" data-field="dietBreakfast" data-value="Standard" onclick="DietWizard.selectCard(this, 'dietBreakfast', 'Standard')">
+                        <div class="select-card-title">Balanced Breakfast</div>
+                        <div class="select-card-desc">Eggs, handmade roti & dal (~30% kcal)</div>
+                    </div>
+                    <div class="select-card" data-field="dietBreakfast" data-value="LightBreakfast" onclick="DietWizard.selectCard(this, 'dietBreakfast', 'LightBreakfast')">
+                        <div class="select-card-title">Light Breakfast</div>
+                        <div class="select-card-desc">2 boiled eggs + tea (~18% kcal, larger lunch/dinner)</div>
+                    </div>
+                </div>
+                <input type="hidden" id="dietBreakfast" value="Standard" />
+            </div>
+
+            <!-- Outside Lunch Mode -->
+            <div class="form-group">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem;">
+                    <label class="form-label" style="margin-bottom: 0;">Office or Outside Lunch?</label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer;">
+                        <input type="checkbox" id="dietOfficeLunchToggle" onchange="DietWizard.toggleOfficeLunch(this)" />
+                        <span>I eat lunch outside</span>
+                    </label>
+                </div>
+                <div id="dietOfficeLunchBox" style="display: none; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); padding: 0.85rem; border-radius: var(--radius-sm); margin-top: 0.4rem;">
+                    <label class="form-label" for="dietOutsideLunchDesc" style="font-size: 0.76rem;">What do you usually eat for outside lunch?</label>
+                    <input type="text" id="dietOutsideLunchDesc" class="form-input" placeholder="e.g. 1 bati rice with 1 piece chicken curry & dal, or 2 rotis with beef" />
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+                        💡 Enter any custom food description. We will automatically budget its macros into your daily plan.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dietary Preferences Tags -->
+            <div class="form-group">
+                <label class="form-label">Dietary Preferences</label>
+                <div class="tags-cloud">
+                    <span class="diet-tag active" onclick="DietWizard.toggleTag(this, 'Halal')">Halal</span>
+                    <span class="diet-tag" onclick="DietWizard.toggleTag(this, 'Egg + Chicken Only')">Egg + Chicken Only</span>
+                    <span class="diet-tag" onclick="DietWizard.toggleTag(this, 'No beef')">No Beef</span>
+                    <span class="diet-tag" onclick="DietWizard.toggleTag(this, 'No fish')">No Fish</span>
+                    <span class="diet-tag" onclick="DietWizard.toggleTag(this, 'Vegetarian')">Vegetarian</span>
+                    <span class="diet-tag" onclick="DietWizard.toggleTag(this, 'Dairy Free')">Dairy Free</span>
+                </div>
+            </div>
+
+            <!-- Monthly Grocery Budget (BDT) -->
+            <div class="form-group">
+                <label class="form-label" for="dietMonthlyBudget">Target Monthly Grocery Budget (BDT ৳)</label>
+                <input type="number" id="dietMonthlyBudget" class="form-input" value="7000" min="3000" max="30000" step="500" />
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    Typical Dhaka student/bachelor grocery budget is ৳5,000–৳8,000/month.
+                </div>
+            </div>
+
+            <div class="wizard-footer">
+                <button type="button" class="btn-secondary" onclick="DietWizard.goToStep(2)">Back</button>
+                <button type="button" class="btn-primary" onclick="DietWizard.submitDietPlan()" id="dietSubmitBtn">
+                    <span>Generate 7-Day Dhaka Meal Plan</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- GENERATING ANIMATION STATE -->
+        <div class="wizard-step" id="dietStepLoading" style="display: none;">
+            <div class="spinner-container">
+                <div class="clean-spinner"></div>
+                <h3 style="font-size: 1.25rem; margin-bottom: 0.4rem;">Architecting Your Dhaka Meal Plan</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                    Balancing local protein sources, micronutrient density, and caloric equilibrium...
+                </p>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/diet-wizard.js" asp-append-version="true"></script>
+}

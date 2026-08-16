@@ -45,6 +45,7 @@ builder.Services.AddSingleton<MealBuilderService>();
 builder.Services.AddSingleton<MealSwapService>();
 builder.Services.AddSingleton<ExercisePlanService>();
 builder.Services.AddSingleton<GroceryPricingService>();
+builder.Services.AddSingleton<DailyCalorieCalculatorService>();
 
 // HTTP Client for Ollama
 builder.Services.AddHttpClient<OllamaClient>(client =>
@@ -74,6 +75,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Plan}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

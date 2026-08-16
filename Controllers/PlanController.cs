@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using ValensFit.Models;
 using ValensFit.Services;
+using ValensFit.Services.Exercise;
 using ValensFit.Services.Nutrition;
 
 namespace ValensFit.Controllers
@@ -11,26 +12,239 @@ namespace ValensFit.Controllers
         private readonly PlanCalculatorService _planCalculator;
         private readonly MealSwapService _mealSwapService;
         private readonly FoodDatabase _foodDb;
+        private readonly ExercisePlanService _exerciseService;
+        private readonly DailyCalorieCalculatorService _calorieCalculator;
         private readonly ILogger<PlanController> _logger;
 
         private const string PlanSessionKey = "ValensFit_ActivePlan";
+        private const string DietSessionKey = "ValensFit_ActiveDietPlan";
+        private const string WorkoutSessionKey = "ValensFit_ActiveWorkoutPlan";
+        private const string TrackerSessionKey = "ValensFit_ActiveTrackerPlan";
 
         public PlanController(
             PlanCalculatorService planCalculator,
             MealSwapService mealSwapService,
             FoodDatabase foodDb,
+            ExercisePlanService exerciseService,
+            DailyCalorieCalculatorService calorieCalculator,
             ILogger<PlanController> logger)
         {
             _planCalculator = planCalculator;
             _mealSwapService = mealSwapService;
             _foodDb = foodDb;
+            _exerciseService = exerciseService;
+            _calorieCalculator = calorieCalculator;
             _logger = logger;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            var defaultModel = new UserInputModel();
+            return RedirectToAction("Index", "Home");
+        }
+
+        // =========================================================================
+        // MODE 1: DIET & NUTRITION ARCHITECT
+        // =========================================================================
+        [HttpGet]
+        public IActionResult Diet()
+        {
+            var defaultModel = new UserInputModel
+            {
+                PlanMode = "Diet",
+                ExercisePreference = "NoExercise",
+                Country = "Bangladesh",
+                CityRegion = "Dhaka",
+                Currency = "BDT",
+                MonthlyBudget = 7000
+            };
+            return View("DietWizard", defaultModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateDiet([FromBody] UserInputModel? model)
+        {
+            var input = model ?? new UserInputModel();
+            input.PlanMode = "Diet";
+            input.Country = "Bangladesh";
+            input.CityRegion = "Dhaka";
+            input.Currency = "BDT";
+
+            try
+            {
+                var plan = await _planCalculator.GenerateComprehensivePlanAsync(input);
+                var json = JsonSerializer.Serialize(plan);
+                HttpContext.Session.SetString(DietSessionKey, json);
+
+                return Ok(new { success = true, redirectUrl = "/Plan/DietResult" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating diet plan");
+                return StatusCode(500, new { success = false, message = "Calculation error: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult DietResult()
+        {
+            var json = HttpContext.Session.GetString(DietSessionKey);
+            if (string.IsNullOrEmpty(json))
+            {
+                return RedirectToAction("Diet");
+            }
+
+            try
+            {
+                var plan = JsonSerializer.Deserialize<PlanResultModel>(json);
+                if (plan == null) return RedirectToAction("Diet");
+                return View("DietResult", plan);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize diet plan from session.");
+                return RedirectToAction("Diet");
+            }
+        }
+
+        // =========================================================================
+        // MODE 2: WORKOUT & EXERCISE PLANNER
+        // =========================================================================
+        [HttpGet]
+        public IActionResult Workout()
+        {
+            var defaultModel = new UserInputModel
+            {
+                PlanMode = "Workout",
+                Country = "Bangladesh",
+                CityRegion = "Dhaka",
+                Currency = "BDT"
+            };
+            return View("WorkoutWizard", defaultModel);
+        }
+
+        [HttpPost]
+        public IActionResult GenerateWorkout([FromBody] UserInputModel? model)
+        {
+            var input = model ?? new UserInputModel();
+            input.PlanMode = "Workout";
+
+            try
+            {
+                var exercisePlan = _exerciseService.GeneratePlan(input);
+                var json = JsonSerializer.Serialize(new { Input = input, Workout = exercisePlan });
+                HttpContext.Session.SetString(WorkoutSessionKey, json);
+
+                return Ok(new { success = true, redirectUrl = "/Plan/WorkoutResult" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating workout plan");
+                return StatusCode(500, new { success = false, message = "Calculation error: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult WorkoutResult()
+        {
+            var json = HttpContext.Session.GetString(WorkoutSessionKey);
+            if (string.IsNullOrEmpty(json))
+            {
+                return RedirectToAction("Workout");
+            }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var input = JsonSerializer.Deserialize<UserInputModel>(doc.RootElement.GetProperty("input").GetRawText(), options);
+                var workout = JsonSerializer.Deserialize<ExercisePlanModel>(doc.RootElement.GetProperty("workout").GetRawText(), options);
+
+                ViewBag.UserInput = input;
+                return View("WorkoutResult", workout);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize workout plan from session.");
+                return RedirectToAction("Workout");
+            }
+        }
+
+        // =========================================================================
+        // MODE 3: DAILY CALORIE TRACKER & FOOD LOGGER
+        // =========================================================================
+        [HttpGet]
+        public IActionResult Tracker()
+        {
+            var defaultInput = new DailyFoodLogInput
+            {
+                Name = "Friend",
+                Age = 25,
+                BiologicalSex = "Male",
+                WeightKg = 70.0,
+                HeightCm = 172.0,
+                ActivityLevel = "ModeratelyActive",
+                Goal = "FatLoss"
+            };
+            return View("Tracker", defaultInput);
+        }
+
+        [HttpPost]
+        public IActionResult CalculateCalories([FromBody] DailyFoodLogInput? input)
+        {
+            var logInput = input ?? new DailyFoodLogInput();
+
+            try
+            {
+                var result = _calorieCalculator.CalculateDailyIntake(logInput);
+                var json = JsonSerializer.Serialize(result);
+                HttpContext.Session.SetString(TrackerSessionKey, json);
+
+                return Ok(new { success = true, redirectUrl = "/Plan/TrackerResult", result = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating logged calories");
+                return StatusCode(500, new { success = false, message = "Calculation error: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult TrackerResult()
+        {
+            var json = HttpContext.Session.GetString(TrackerSessionKey);
+            if (string.IsNullOrEmpty(json))
+            {
+                return RedirectToAction("Tracker");
+            }
+
+            try
+            {
+                var result = JsonSerializer.Deserialize<FoodLogResultModel>(json);
+                if (result == null) return RedirectToAction("Tracker");
+                return View("TrackerResult", result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deserialize tracker result from session.");
+                return RedirectToAction("Tracker");
+            }
+        }
+
+        // =========================================================================
+        // MODE 4: COMBINED TRANSFORMATION (DIET + WORKOUT)
+        // =========================================================================
+        [HttpGet]
+        public IActionResult Combined()
+        {
+            var defaultModel = new UserInputModel
+            {
+                PlanMode = "Combined",
+                Country = "Bangladesh",
+                CityRegion = "Dhaka",
+                Currency = "BDT",
+                MonthlyBudget = 7000
+            };
             return View("Wizard", defaultModel);
         }
 
@@ -38,26 +252,17 @@ namespace ValensFit.Controllers
         public async Task<IActionResult> Generate([FromBody] UserInputModel? model)
         {
             var input = model ?? new UserInputModel();
-
-            // Default or clamp key fields safely
-            if (string.IsNullOrWhiteSpace(input.FirstName))
-            {
-                input.FirstName = "Friend";
-            }
-            if (input.Age < 13 || input.Age > 80)
-            {
-                input.Age = Math.Clamp(input.Age, 13, 80);
-            }
+            input.Country = "Bangladesh";
+            input.CityRegion = "Dhaka";
+            input.Currency = "BDT";
 
             try
             {
                 var plan = await _planCalculator.GenerateComprehensivePlanAsync(input);
-
-                // Store in session for result retrieval
                 var json = JsonSerializer.Serialize(plan);
                 HttpContext.Session.SetString(PlanSessionKey, json);
 
-                return Ok(new { success = true, plan = plan });
+                return Ok(new { success = true, redirectUrl = "/Plan/Result", plan = plan });
             }
             catch (Exception ex)
             {
@@ -72,19 +277,19 @@ namespace ValensFit.Controllers
             var json = HttpContext.Session.GetString(PlanSessionKey);
             if (string.IsNullOrEmpty(json))
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Combined");
             }
 
             try
             {
                 var plan = JsonSerializer.Deserialize<PlanResultModel>(json);
-                if (plan == null) return RedirectToAction("Index");
+                if (plan == null) return RedirectToAction("Combined");
                 return View("Result", plan);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to deserialize active plan from session.");
-                return RedirectToAction("Index");
+                return RedirectToAction("Combined");
             }
         }
 
@@ -153,23 +358,23 @@ namespace ValensFit.Controllers
                     OfficeLunch = true,
                     OfficeLunchDescription = "Rice with chicken curry (1 piece)"
                 },
-                "hypertrophy" => new UserInputModel
+                "dhaka_hypertrophy" => new UserInputModel
                 {
-                    FirstName = "Marcus",
+                    FirstName = "Tanvir",
                     Gender = "Male",
-                    Age = 26,
-                    Height = 182,
+                    Age = 24,
+                    Height = 178,
                     HeightUnit = "cm",
-                    Weight = 75,
+                    Weight = 72,
                     WeightUnit = "kg",
                     ActivityLevel = "VeryActive",
                     Goal = "BuildMuscle",
                     MaximizeMuscleRetention = true,
-                    Country = "United States",
-                    CityRegion = "Chicago",
-                    MonthlyBudget = 350,
-                    Currency = "USD",
-                    DietPreferences = new List<string> { "High Protein" },
+                    Country = "Bangladesh",
+                    CityRegion = "Dhaka",
+                    MonthlyBudget = 9500,
+                    Currency = "BDT",
+                    DietPreferences = new List<string> { "Halal" },
                     ExercisePreference = "Gym",
                     MinutesPerSession = 60,
                     DaysPerWeek = 5,
@@ -177,20 +382,20 @@ namespace ValensFit.Controllers
                 },
                 "home_fit" => new UserInputModel
                 {
-                    FirstName = "Elena",
+                    FirstName = "Nusrat",
                     Gender = "Female",
-                    Age = 29,
-                    Height = 165,
+                    Age = 27,
+                    Height = 160,
                     HeightUnit = "cm",
-                    Weight = 62,
+                    Weight = 63,
                     WeightUnit = "kg",
                     ActivityLevel = "LightlyActive",
-                    Goal = "Maintain",
-                    Country = "United Kingdom",
-                    CityRegion = "London",
-                    MonthlyBudget = 200,
-                    Currency = "GBP",
-                    DietPreferences = new List<string> { "Vegetarian" },
+                    Goal = "LoseFat",
+                    Country = "Bangladesh",
+                    CityRegion = "Dhaka",
+                    MonthlyBudget = 6000,
+                    Currency = "BDT",
+                    DietPreferences = new List<string> { "Halal" },
                     ExercisePreference = "HomeBodyweight",
                     MinutesPerSession = 40,
                     DaysPerWeek = 3,

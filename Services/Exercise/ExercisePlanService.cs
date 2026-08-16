@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using ValensFit.Models;
 
 namespace ValensFit.Services.Exercise
@@ -38,22 +43,33 @@ namespace ValensFit.Services.Exercise
 
         public ExercisePlanModel GeneratePlan(UserInputModel input)
         {
+            double weightKg = input.GetWeightInKg();
+            int sessionMins = input.MinutesPerSession > 0 ? input.MinutesPerSession : 45;
+            int daysPerWeek = input.DaysPerWeek > 0 ? input.DaysPerWeek : 4;
+            int stepTarget = input.DailyStepsTarget > 0 ? input.DailyStepsTarget : 8000;
+
             var plan = new ExercisePlanModel
             {
                 Preference = input.ExercisePreference,
-                DaysPerWeek = input.DaysPerWeek,
-                MinutesPerSession = input.MinutesPerSession,
-                DailyStepTarget = input.DailyStepsTarget > 0 ? input.DailyStepsTarget : 10000
+                DaysPerWeek = daysPerWeek,
+                MinutesPerSession = sessionMins,
+                DailyStepTarget = stepTarget
             };
+
+            // Calculate MET-based daily step energy burn (~0.04 kcal per step for 70kg baseline)
+            plan.DailyStepsCalorieBurn = (int)Math.Round(stepTarget * 0.04 * (weightKg / 70.0));
 
             string prefKey = input.ExercisePreference?.ToLowerInvariant() ?? "gym";
 
             if (prefKey == "noexercise")
             {
-                plan.ProgramTitle = "Nutritional Focus & Daily Vitality Walking";
+                plan.ProgramTitle = "Nutritional Discipline & Metabolic Vitality Walking";
                 plan.Rationale = "Your primary focus in this phase is strict nutritional precision. No strenuous resistance workouts are scheduled, preserving energy while maintaining metabolic circulation through daily baseline steps.";
                 plan.WalkingRationale = $"Aim for {plan.DailyStepTarget:N0} daily steps to sustain insulin sensitivity, joint mobility, and non-exercise thermogenesis (NEAT).";
-                plan.Principles.Add($"Target {plan.DailyStepTarget:N0} daily steps split throughout the day");
+                plan.AvgCaloriesBurnedPerSession = 0;
+                plan.WeeklyTotalCalorieBurn = plan.DailyStepsCalorieBurn * 7;
+
+                plan.Principles.Add($"Target {plan.DailyStepTarget:N0} daily steps (~{plan.DailyStepsCalorieBurn} kcal/day burn)");
                 plan.Principles.Add("Take a 10-15 minute walk after your largest carbohydrate meal");
                 plan.Principles.Add("Prioritize 7-8 hours of restful sleep for cellular recovery");
 
@@ -64,6 +80,7 @@ namespace ValensFit.Services.Exercise
                     Focus = "Metabolic Health & Digestion",
                     IsRestDay = true,
                     EstimatedMinutes = 20,
+                    EstimatedCaloriesBurned = (int)(3.0 * weightKg * (20.0 / 60.0)),
                     Warmup = "Gentle joint mobility & neck/shoulder rolls",
                     Cooldown = "Adequate water hydration",
                     Exercises = new List<ExerciseItem>
@@ -76,12 +93,18 @@ namespace ValensFit.Services.Exercise
 
             if (prefKey == "walkingonly")
             {
+                double walkingMet = 3.8;
+                int walkingSessionBurn = (int)Math.Round(walkingMet * weightKg * (sessionMins / 60.0));
+
                 plan.ProgramTitle = $"Structured Walking Protocol ({plan.DailyStepTarget:N0} Steps/Day)";
-                plan.Rationale = $"Low-impact aerobic conditioning programmed for {input.MinutesPerSession} minutes/day across {input.DaysPerWeek} days/week. Maximizes fat oxidation while causing near-zero joint wear.";
-                plan.WalkingRationale = $"Hitting {plan.DailyStepTarget:N0} steps daily provides steady energy expenditure and accelerates fat loss.";
+                plan.Rationale = $"Low-impact aerobic conditioning programmed for {sessionMins} mins/day across {daysPerWeek} days/week. Maximizes fat oxidation with near-zero joint stress.";
+                plan.WalkingRationale = $"Hitting {plan.DailyStepTarget:N0} steps daily provides ~{plan.DailyStepsCalorieBurn} kcal daily expenditure, accelerating fat loss.";
+                plan.AvgCaloriesBurnedPerSession = walkingSessionBurn;
+                plan.WeeklyTotalCalorieBurn = (walkingSessionBurn * daysPerWeek) + (plan.DailyStepsCalorieBurn * 7);
+
                 plan.Principles.Add($"Daily target: {plan.DailyStepTarget:N0} steps (brisk pace ~100-115 steps/min)");
+                plan.Principles.Add($"Each structured session burns ~{walkingSessionBurn} kcal");
                 plan.Principles.Add("Divide walking volume into morning pre-work and evening post-dinner sessions");
-                plan.Principles.Add("Track weekly consistency to ensure positive metabolic momentum");
 
                 plan.Schedule.Add(new WorkoutDay
                 {
@@ -89,12 +112,13 @@ namespace ValensFit.Services.Exercise
                     DayTitle = "Session A: Morning Metabolic Stride",
                     Focus = "Fat Oxidation & Wakefulness",
                     IsRestDay = false,
-                    EstimatedMinutes = Math.Min(input.MinutesPerSession, 45),
+                    EstimatedMinutes = sessionMins,
+                    EstimatedCaloriesBurned = walkingSessionBurn,
                     Warmup = "2 min ankle rolls and calf raises",
                     Cooldown = "2 min standing hamstring and calf stretch",
                     Exercises = new List<ExerciseItem>
                     {
-                        new() { Name = "Brisk Outdoor / Treadmill Walk", TargetMuscle = "Aerobic System / Legs", Sets = 1, Reps = $"{Math.Min(input.MinutesPerSession, 30)} mins", RestSeconds = 0, FormCue = "Maintain upright posture, chest open, steady rhythmic arm swing" }
+                        new() { Name = "Brisk Outdoor / Treadmill Walk", TargetMuscle = "Aerobic System / Lower Body", Sets = 1, Reps = $"{sessionMins} mins", RestSeconds = 0, FormCue = "Maintain upright posture, chest open, steady rhythmic arm swing" }
                     }
                 });
 
@@ -105,6 +129,7 @@ namespace ValensFit.Services.Exercise
                     Focus = "Glucose Clearance & Digestion",
                     IsRestDay = false,
                     EstimatedMinutes = 20,
+                    EstimatedCaloriesBurned = (int)Math.Round(3.5 * weightKg * (20.0 / 60.0)),
                     Warmup = "Light continuous walking",
                     Cooldown = "Deep diaphragmatic breathing",
                     Exercises = new List<ExerciseItem>
@@ -117,13 +142,18 @@ namespace ValensFit.Services.Exercise
             }
 
             // Gym or HomeBodyweight
+            double workoutMet = prefKey == "homebodyweight" ? 4.8 : 5.8;
+            int estimatedSessionBurn = (int)Math.Round(workoutMet * weightKg * (sessionMins / 60.0));
+            plan.AvgCaloriesBurnedPerSession = estimatedSessionBurn;
+            plan.WeeklyTotalCalorieBurn = (estimatedSessionBurn * daysPerWeek) + (plan.DailyStepsCalorieBurn * 7);
+
             string categoryKey = prefKey == "homebodyweight" ? "homebodyweight" : "gym";
             if (_workoutData.TryGetValue(categoryKey, out var workoutObj))
             {
                 plan.ProgramTitle = workoutObj.TryGetProperty("Title", out var t) ? t.GetString() ?? "" : "ValensFit Training Protocol";
                 plan.Rationale = workoutObj.TryGetProperty("Rationale", out var r) ? r.GetString() ?? "" : "";
                 
-                string daysPropName = input.DaysPerWeek >= 4 && workoutObj.TryGetProperty("Days4", out _) ? "Days4" : "Days3";
+                string daysPropName = daysPerWeek >= 4 && workoutObj.TryGetProperty("Days4", out _) ? "Days4" : "Days3";
                 if (workoutObj.TryGetProperty(daysPropName, out var daysArr))
                 {
                     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -132,7 +162,8 @@ namespace ValensFit.Services.Exercise
                     {
                         foreach (var day in daysList)
                         {
-                            day.EstimatedMinutes = input.MinutesPerSession;
+                            day.EstimatedMinutes = sessionMins;
+                            day.EstimatedCaloriesBurned = day.IsRestDay ? 0 : estimatedSessionBurn;
                             foreach (var ex in day.Exercises)
                             {
                                 if (input.ExperienceLevel.Equals("Beginner", StringComparison.OrdinalIgnoreCase))
@@ -150,9 +181,10 @@ namespace ValensFit.Services.Exercise
                 }
             }
 
+            plan.Principles.Add($"Each {sessionMins}-min session expends ~{estimatedSessionBurn} kcal based on your {weightKg:F1}kg bodyweight");
             plan.Principles.Add("Apply Progressive Overload: strive to add 1 rep or slight resistance each week");
             plan.Principles.Add("Maintain strict eccentric tempo (2-3 seconds on lowering phase)");
-            plan.Principles.Add($"Consume 25-35g protein within 2 hours post-workout to support muscle recovery");
+            plan.Principles.Add("Consume 25-35g protein within 2 hours post-workout to support muscle protein synthesis");
 
             return plan;
         }

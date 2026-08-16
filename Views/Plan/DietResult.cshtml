@@ -1,0 +1,323 @@
+@model ValensFit.Models.PlanResultModel
+@{
+    ViewData["Title"] = $"{Model.FirstName}'s 7-Day Dhaka Meal Plan";
+}
+
+<!-- Master Diet Results Container -->
+<div class="clean-card" id="dietResultsContainer" style="margin-bottom: 2rem;">
+
+    <!-- Top Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;" class="no-print">
+        <a href="/Plan/Diet" class="btn-secondary" style="font-size: 0.82rem; padding: 0.4rem 0.95rem; min-height: 38px;">
+            <span>↺ Adjust Diet Inputs</span>
+        </a>
+        <button type="button" class="btn-primary" onclick="window.print()" style="font-size: 0.82rem; padding: 0.45rem 1.15rem; min-height: 38px;">
+            <span>Export / Print Meal Plan</span>
+        </button>
+    </div>
+
+    <!-- Header & Greeting -->
+    <div style="margin-bottom: 1.5rem;">
+        <div style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--accent-primary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
+            🥗 7-Day Dhaka Meal Schedule
+        </div>
+        <h1 style="font-size: 1.85rem; margin-bottom: 0.3rem; line-height: 1.2;">
+            Nutrition Architecture for <span class="brand-accent-text">@Model.FirstName</span>
+        </h1>
+        <p style="font-size: 0.92rem; color: var(--text-secondary);">
+            Goal: <strong>@Model.GoalDisplayName</strong> · Grounded in authentic Dhaka market staples.
+        </p>
+
+        @if (!string.IsNullOrEmpty(Model.PaceWarning))
+        {
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--accent-amber); border-radius: var(--radius-sm); padding: 0.7rem 1rem; margin-top: 0.85rem; font-size: 0.82rem; color: #FCD34D;">
+                <strong>Pace Calibration:</strong> @Model.PaceWarning
+            </div>
+        }
+    </div>
+
+    <!-- Goal Impact Caloric Comparison Box -->
+    <div class="goal-comparison-box">
+        <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">
+                Goal Impact Breakdown
+            </div>
+            <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin: 0.2rem 0;">
+                @Model.GoalAdjustmentDescription
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                Maintenance Energy (TDEE): <strong>@Model.Tdee.ToString("N0") kcal/day</strong> ➔ Target Goal: <strong class="brand-accent-text">@Model.TargetCalories.ToString("N0") kcal/day</strong>
+            </div>
+        </div>
+        <div>
+            <span class="budget-verdict-pill @(Model.CalorieAdjustment < 0 ? "budget-verdict-fits" : (Model.CalorieAdjustment > 0 ? "budget-verdict-tight" : "budget-verdict-fits"))">
+                @(Model.CalorieAdjustment > 0 ? $"+{Model.CalorieAdjustment:N0} kcal" : $"{Model.CalorieAdjustment:N0} kcal")
+            </span>
+        </div>
+    </div>
+
+    <!-- Hero Stats Banner (Rendered with Default Value + Smooth Count-up) -->
+    <div class="hero-stats-banner">
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.TargetCalories">@Model.TargetCalories.ToString("N0")</div>
+            <div class="hero-stat-label">Daily Goal Target</div>
+            <div class="hero-stat-sub">Maintenance: @Model.Tdee.ToString("N0") kcal</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.ProteinGrams" style="color: var(--accent-primary);">@Model.ProteinGrams.ToString("N0")</div>
+            <div class="hero-stat-label">Protein Target</div>
+            <div class="hero-stat-sub">@Model.ProteinPerKg g/kg · @Model.ProteinCalories kcal</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.CarbGrams" style="color: var(--accent-secondary);">@Model.CarbGrams.ToString("N0")</div>
+            <div class="hero-stat-label">Carbohydrates</div>
+            <div class="hero-stat-sub">@Model.CarbCalories kcal (Energy fuel)</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.FatGrams" style="color: var(--accent-amber);">@Model.FatGrams.ToString("N0")</div>
+            <div class="hero-stat-label">Essential Fats</div>
+            <div class="hero-stat-sub">@Model.FatPercentage% total kcal · @Model.FatCalories kcal</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val" style="color: var(--accent-blue);">
+                <span class="count-up" data-target="@Model.WaterIntakeLitres">@Model.WaterIntakeLitres.ToString("F1")</span> L
+            </div>
+            <div class="hero-stat-label">Daily Water Target</div>
+            <div class="hero-stat-sub">~@Model.WaterGlasses glasses (250ml)</div>
+        </div>
+    </div>
+
+    <!-- =================================================================
+         7-DAY MEAL SCHEDULE TABS & MEAL CARDS
+         ================================================================= -->
+    <div style="margin-top: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+            <div>
+                <h2 style="font-size: 1.35rem;">7-Day Meal Schedule</h2>
+                <div style="font-size: 0.82rem; color: var(--text-muted);">Select a day below to inspect its balanced meals and swap items.</div>
+            </div>
+        </div>
+
+        <!-- Day Selector Tabs -->
+        <div class="day-tabs-wrapper no-print" id="dietDayTabs">
+            @for (int i = 0; i < Model.Days.Count; i++)
+            {
+                var day = Model.Days[i];
+                <button type="button" class="day-tab-btn @(i == 0 ? "active" : "")" onclick="ResultView.selectDay(@i, this)">
+                    @day.DayName
+                </button>
+            }
+        </div>
+
+        <!-- Day Plans Container -->
+        <div id="dietDayPlansContainer">
+            @for (int d = 0; d < Model.Days.Count; d++)
+            {
+                var day = Model.Days[d];
+                <div class="day-plan-card @(d == 0 ? "active" : "")" id="dayPlan_@d" style="@(d == 0 ? "" : "display: none;")">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.4rem;">
+                        <div>
+                            <h3 style="font-size: 1.15rem; color: var(--accent-primary);">@day.DayName — @day.DayTheme</h3>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-subtle); padding: 0.3rem 0.75rem; border-radius: var(--radius-pill); font-size: 0.8rem; font-weight: 600;">
+                            Day Total: <span>@day.TotalCalories</span> kcal · <span style="color: var(--accent-primary);">@day.TotalProtein g P</span>
+                        </div>
+                    </div>
+
+                    <!-- Meals in Day -->
+                    @foreach (var meal in day.Meals)
+                    {
+                        <div class="meal-card" id="mealCard_@(d)_@(meal.SlotName)">
+                            <div class="meal-header">
+                                <div>
+                                    <div class="meal-title">@meal.SlotName: @meal.Title</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted);">@meal.TimingGuidance</div>
+                                </div>
+                                <div class="meal-macros-badge">
+                                    <strong style="color: var(--text-primary);">@meal.ActualCalories kcal</strong> · 
+                                    <span style="color: var(--accent-primary);">@meal.ActualProtein g P</span> · 
+                                    <span style="color: var(--accent-secondary);">@meal.ActualCarbs g C</span> · 
+                                    <span style="color: var(--accent-amber);">@meal.ActualFat g F</span>
+                                </div>
+                            </div>
+
+                            <!-- Food Items List -->
+                            <ul class="food-items-list">
+                                @foreach (var item in meal.Items)
+                                {
+                                    <li class="food-item-row" id="itemRow_@(d)_@(meal.SlotName)_@(item.FoodId)">
+                                        <div class="food-name-qty">
+                                            <span style="color: var(--accent-primary);">•</span> @item.FoodName
+                                            <span style="color: var(--text-muted); font-size: 0.8rem; margin-left: 0.35rem;">(@item.DisplayQuantity)</span>
+                                        </div>
+                                        <div class="food-macros-chips">
+                                            <span>@item.Calories kcal</span>
+                                            <span style="color: var(--accent-primary);">@item.Protein g P</span>
+                                            <span style="color: var(--accent-secondary);">@item.Carbs g C</span>
+                                            <button type="button" class="food-swap-btn no-print" onclick="ResultView.openSwapModal('@item.FoodId', '@item.FoodName', '@item.Category', @item.Calories, @item.Protein, '@meal.SlotName', @d)">
+                                                ⇄ Swap
+                                            </button>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+
+                            @if (!string.IsNullOrEmpty(meal.CookingTip))
+                            {
+                                <div class="cooking-tip-box">
+                                    <strong>Prep Tip:</strong> @meal.CookingTip
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- =================================================================
+         OPTIONAL GROCERY SHOPPING LIST & BUDGET REVEAL CARD
+         ================================================================= -->
+    <div style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem;" class="no-print">
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1.5px dashed var(--accent-border); border-radius: var(--radius-md); padding: 1.35rem; text-align: center;" id="groceryPromptCard">
+            <div style="font-size: 1.35rem; margin-bottom: 0.25rem;">🛒</div>
+            <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem;">Generate Weekly Dhaka Grocery Shopping List?</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 540px; margin: 0 auto 1.15rem auto;">
+                Would you like an exact weekly grocery shopping checklist with localized Dhaka market prices (BDT ৳) and estimated monthly food expenses for this plan?
+            </p>
+            <button type="button" class="btn-primary" onclick="toggleGrocerySection()" id="groceryToggleBtn">
+                <span>Generate Weekly Grocery Checklist</span>
+                <span>🛒</span>
+            </button>
+        </div>
+
+        <!-- REVEALED GROCERY & BUDGET BREAKDOWN -->
+        <div id="revealedGrocerySection" style="display: none; margin-top: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+                <div>
+                    <h3 style="font-size: 1.25rem;">Dhaka Grocery Shopping Checklist & Budget</h3>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Calculated strictly from the ingredients in your 7-day meal plan.</div>
+                </div>
+                <div class="budget-verdict-pill budget-verdict-@Model.GroceryBudget.Verdict">
+                    <span>@Model.GroceryBudget.VerdictTitle</span>
+                </div>
+            </div>
+
+            <!-- Cost Summary Strip -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem;">
+                <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Est. Weekly Grocery Cost</div>
+                    <div style="font-family: var(--font-heading); font-size: 1.55rem; font-weight: 800; color: var(--accent-primary); margin-top: 0.15rem;">
+                        ৳ @Model.GroceryBudget.EstimatedWeeklyCost.ToString("N0")
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Est. Monthly Total Cost</div>
+                    <div style="font-family: var(--font-heading); font-size: 1.55rem; font-weight: 800; color: var(--text-primary); margin-top: 0.15rem;">
+                        ৳ @Model.GroceryBudget.EstimatedMonthlyCost.ToString("N0")
+                    </div>
+                </div>
+
+                @if (Model.GroceryBudget.UserMonthlyBudget.HasValue && Model.GroceryBudget.UserMonthlyBudget > 0)
+                {
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                        <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Your Target Budget</div>
+                        <div style="font-family: var(--font-heading); font-size: 1.55rem; font-weight: 800; color: var(--accent-secondary); margin-top: 0.15rem;">
+                            ৳ @Model.GroceryBudget.UserMonthlyBudget.Value.ToString("N0")
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- 7-Day Shopping Cart Checklist -->
+            <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div>
+                        <h4 style="font-size: 1.05rem;">7-Day Market Shopping Cart</h4>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Check off items as you buy them at your local Dhaka bazar.</div>
+                    </div>
+                    <button type="button" class="btn-secondary no-print" onclick="ResultView.copyGroceryList()" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; min-height: 32px;">
+                        📋 Copy Checklist
+                    </button>
+                </div>
+
+                @{
+                    var grouped = Model.GroceryBudget.Items.GroupBy(i => i.Category).ToList();
+                }
+
+                @foreach (var group in grouped)
+                {
+                    <div class="grocery-category-block">
+                        <div class="grocery-category-title">
+                            @group.Key
+                        </div>
+                        @foreach (var item in group)
+                        {
+                            <div class="checklist-item">
+                                <label class="checklist-label">
+                                    <input type="checkbox" class="checklist-checkbox" onchange="ResultView.toggleChecklistItem(this)" />
+                                    <span>
+                                        <strong>@item.FoodName</strong>: 
+                                        <span style="color: var(--accent-primary);">@item.DisplayWeeklyQuantity</span>
+                                    </span>
+                                </label>
+                                <span style="font-size: 0.78rem; color: var(--text-muted);">
+                                    Weekly: ~৳ @item.TotalCost.ToString("N0") | Mo: ~৳ @item.EstimatedMonthlyCost.ToString("N0")
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Food Swap Modal -->
+<div class="swap-modal-backdrop" id="swapModal">
+    <div class="swap-modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.45rem;">
+            <h3 style="font-size: 1.05rem;">Swap Food Item</h3>
+            <button type="button" onclick="ResultView.closeSwapModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.35rem; cursor: pointer;">&times;</button>
+        </div>
+
+        <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.85rem;" id="swapOriginalText">
+            Replacing food item...
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="swapFoodSelect">Select Dhaka Market Replacement</label>
+            <select id="swapFoodSelect" class="form-select"></select>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+            <button type="button" class="btn-secondary" onclick="ResultView.closeSwapModal()" style="min-height: 38px; padding: 0.4rem 0.9rem;">Cancel</button>
+            <button type="button" class="btn-primary" onclick="ResultView.executeFoodSwap()" style="min-height: 38px; padding: 0.4rem 1.1rem;">Calibrate & Swap</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/result.js" asp-append-version="true"></script>
+    <script>
+        function toggleGrocerySection() {
+            const sec = document.getElementById('revealedGrocerySection');
+            const promptCard = document.getElementById('groceryPromptCard');
+            if (sec) {
+                sec.style.display = 'block';
+                sec.scrollIntoView({ behavior: 'smooth' });
+            }
+            if (promptCard) {
+                promptCard.style.display = 'none';
+            }
+        }
+    </script>
+}

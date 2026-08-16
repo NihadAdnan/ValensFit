@@ -1,0 +1,307 @@
+@model ValensFit.Models.DailyFoodLogInput
+@{
+    ViewData["Title"] = "Daily Calorie & Macro Tracker (Dhaka Cooking)";
+}
+
+<div class="clean-card" id="trackerContainer" style="margin-bottom: 2rem;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+        <div>
+            <a href="/" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Modes</a>
+            <h1 style="font-size: 1.6rem; margin-top: 0.2rem;">🔢 Daily Calorie & Macro Tracker</h1>
+        </div>
+        <span class="budget-verdict-pill budget-verdict-fits">Dhaka Cooking Engine</span>
+    </div>
+
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+        Log the foods you ate today. Our algorithm specifically accounts for <strong>cooking oil absorption (Mustard/Soybean/Ghee)</strong>, <strong>cooking styles (Bhuna vs Jhol)</strong>, and <strong>milk tea sugar</strong> to calculate your exact caloric and macronutrient intake.
+    </p>
+
+    <form id="foodLogForm" onsubmit="return false;">
+        
+        <!-- =============================================================
+             1. USER PROFILE FOR ENERGY BALANCE COMPARISON
+             ============================================================= -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.15rem; margin-bottom: 1.5rem;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-primary); text-transform: uppercase; margin-bottom: 0.75rem;">
+                👤 Baseline Physical Profile (For Maintenance TDEE Comparison)
+            </div>
+
+            <div class="biometrics-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="trackWeight">Weight (kg)</label>
+                    <input type="number" id="trackWeight" class="form-input" value="70" min="30" max="250" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="trackHeight">Height (cm)</label>
+                    <input type="number" id="trackHeight" class="form-input" value="172" min="120" max="230" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="trackAge">Age (Years)</label>
+                    <input type="number" id="trackAge" class="form-input" value="25" min="13" max="80" />
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.85rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="trackSex">Biological Sex</label>
+                    <select id="trackSex" class="form-select">
+                        <option value="Male" selected>Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="trackActivity">Daily Activity Level</label>
+                    <select id="trackActivity" class="form-select">
+                        <option value="Sedentary">Sedentary (Desk work)</option>
+                        <option value="ModeratelyActive" selected>Moderate (~6k-8k steps)</option>
+                        <option value="VeryActive">Very Active (10k+ steps / Gym)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================================
+             2. BREAKFAST MEAL SLOT
+             ============================================================= -->
+        <div class="tracker-meal-card" id="slotBreakfast">
+            <div class="tracker-meal-header">
+                <h3 style="font-size: 1.1rem; color: var(--accent-primary);">🌅 Breakfast</h3>
+                <span style="font-size: 0.76rem; color: var(--text-muted);">Morning Meal</span>
+            </div>
+
+            <!-- Cooking Oil & Method for Breakfast -->
+            <div class="cooking-inputs-grid">
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Cooking Oil Used</label>
+                    <select class="form-select track-oil-type" id="bkOilType">
+                        <option value="Mustard" selected>Mustard Oil (Shorshar Tel)</option>
+                        <option value="Soybean">Soybean Oil</option>
+                        <option value="Ghee">Ghee / Butter</option>
+                        <option value="Olive">Olive Oil</option>
+                        <option value="None">None (Boiled / Steamed)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Oil Amount</label>
+                    <select class="form-select track-oil-amount" id="bkOilAmount">
+                        <option value="Low">Low (~1 tsp / 5ml · +45 kcal)</option>
+                        <option value="Medium" selected>Medium (~1 tbsp / 15ml · +135 kcal)</option>
+                        <option value="High">High (2+ tbsp · +270 kcal / Restaurant)</option>
+                        <option value="None">None (Zero Added Fat)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Cooking Style</label>
+                    <select class="form-select track-method" id="bkMethod">
+                        <option value="Steamed/Boiled">Boiled / Dry / Steamed</option>
+                        <option value="Jhol" selected>Jhol (Light Curry Gravy)</option>
+                        <option value="Fried">Fried / Mamla</option>
+                        <option value="Bhorta">Bhorta (Mashed with Mustard Oil)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Food Items Selector -->
+            <div style="margin-top: 0.85rem;">
+                <label class="form-label" style="font-size: 0.76rem;">Select Breakfast Items Eaten</label>
+                <div class="quick-food-pills" id="bkQuickPills">
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotBreakfast', 'roti', 'Handmade Roti', 2, 'pcs')">+ 2 Rotis</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotBreakfast', 'egg_boiled', 'Boiled Egg', 2, 'eggs')">+ 2 Boiled Eggs</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotBreakfast', 'egg_fried', 'Fried Egg (Mamla)', 1, 'eggs')">+ 1 Fried Egg</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotBreakfast', 'dal_masoor', 'Masoor Dal', 1, 'bati')">+ 1 Bati Dal</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotBreakfast', 'porota', 'Paratha', 1, 'pcs')">+ 1 Paratha</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotBreakfast', 'banana', 'Banana (Shobri/Champa)', 1, 'pcs')">+ 1 Banana</span>
+                </div>
+
+                <div class="logged-items-list" id="bkLoggedItems">
+                    <!-- Default Initial Items -->
+                    <div class="logged-item-row" data-key="roti" data-name="Handmade Roti" data-qty="2" data-unit="pcs">
+                        <span>• Handmade Roti (2 pcs)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                    <div class="logged-item-row" data-key="egg_boiled" data-name="Boiled Egg" data-qty="2" data-unit="eggs">
+                        <span>• Boiled Egg (2 eggs)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================================
+             3. LUNCH MEAL SLOT
+             ============================================================= -->
+        <div class="tracker-meal-card" id="slotLunch">
+            <div class="tracker-meal-header">
+                <h3 style="font-size: 1.1rem; color: var(--accent-primary);">☀️ Lunch</h3>
+                <span style="font-size: 0.76rem; color: var(--text-muted);">Mid-day Meal</span>
+            </div>
+
+            <!-- Cooking Oil & Method for Lunch -->
+            <div class="cooking-inputs-grid">
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Cooking Oil Used</label>
+                    <select class="form-select track-oil-type" id="lnOilType">
+                        <option value="Mustard" selected>Mustard Oil (Shorshar Tel)</option>
+                        <option value="Soybean">Soybean Oil</option>
+                        <option value="Ghee">Ghee</option>
+                        <option value="None">None</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Oil Amount</label>
+                    <select class="form-select track-oil-amount" id="lnOilAmount">
+                        <option value="Medium" selected>Medium (~1 tbsp / 15ml · +135 kcal)</option>
+                        <option value="High">High (2+ tbsp / Restaurant Bhuna · +270 kcal)</option>
+                        <option value="Low">Low (~1 tsp / 5ml · +45 kcal)</option>
+                        <option value="None">None</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Cooking Style</label>
+                    <select class="form-select track-method" id="lnMethod">
+                        <option value="Jhol" selected>Jhol (Light Curry Gravy)</option>
+                        <option value="Bhuna">Bhuna (Thick Masala Gravy)</option>
+                        <option value="Bhorta">Bhorta (Mashed with Raw Mustard Oil)</option>
+                        <option value="Fried">Fried Fish / Meat</option>
+                        <option value="Steamed/Boiled">Steamed / Boiled</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Food Items Selector -->
+            <div style="margin-top: 0.85rem;">
+                <label class="form-label" style="font-size: 0.76rem;">Select Lunch Items Eaten</label>
+                <div class="quick-food-pills">
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotLunch', 'rice_white', 'White Rice (Bhaat)', 1, 'bati')">+ 1 Bati Rice</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotLunch', 'chicken', 'Chicken Curry', 1, 'pcs')">+ 1 Pc Chicken</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotLunch', 'fish', 'Rui/Katla Fish', 1, 'pcs')">+ 1 Pc Fish</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotLunch', 'beef', 'Beef Curry', 1, 'pcs')">+ 1 Pc Beef</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotLunch', 'dal_masoor', 'Masoor Dal', 1, 'bati')">+ 1 Bati Dal</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotLunch', 'aloo_bhorta', 'Aloo Bhorta', 1, 'serving')">+ Aloo Bhorta</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotLunch', 'shak', 'Palong/Lal Shak', 1, 'serving')">+ Shak Bhaji</span>
+                </div>
+
+                <div class="logged-items-list" id="lnLoggedItems">
+                    <div class="logged-item-row" data-key="rice_white" data-name="White Rice (Bhaat)" data-qty="1" data-unit="bati">
+                        <span>• White Rice (1 bati ~200g)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                    <div class="logged-item-row" data-key="chicken" data-name="Chicken Curry" data-qty="1" data-unit="pcs">
+                        <span>• Chicken Curry (1 piece ~80g)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                    <div class="logged-item-row" data-key="dal_masoor" data-name="Masoor Dal" data-qty="1" data-unit="bati">
+                        <span>• Masoor Dal (1 bati)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================================
+             4. DINNER MEAL SLOT
+             ============================================================= -->
+        <div class="tracker-meal-card" id="slotDinner">
+            <div class="tracker-meal-header">
+                <h3 style="font-size: 1.1rem; color: var(--accent-primary);">🌙 Dinner</h3>
+                <span style="font-size: 0.76rem; color: var(--text-muted);">Evening Meal</span>
+            </div>
+
+            <div class="cooking-inputs-grid">
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Cooking Oil Used</label>
+                    <select class="form-select track-oil-type" id="dnOilType">
+                        <option value="Mustard" selected>Mustard Oil</option>
+                        <option value="Soybean">Soybean Oil</option>
+                        <option value="None">None</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Oil Amount</label>
+                    <select class="form-select track-oil-amount" id="dnOilAmount">
+                        <option value="Low">Low (~1 tsp / 5ml · +45 kcal)</option>
+                        <option value="Medium" selected>Medium (~1 tbsp / 15ml · +135 kcal)</option>
+                        <option value="High">High (2+ tbsp · +270 kcal)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" style="font-size: 0.74rem;">Cooking Style</label>
+                    <select class="form-select track-method" id="dnMethod">
+                        <option value="Jhol" selected>Jhol (Light Curry Gravy)</option>
+                        <option value="Bhuna">Bhuna (Thick Gravy)</option>
+                        <option value="Bhorta">Bhorta</option>
+                        <option value="Steamed/Boiled">Steamed / Boiled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top: 0.85rem;">
+                <label class="form-label" style="font-size: 0.76rem;">Select Dinner Items Eaten</label>
+                <div class="quick-food-pills">
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotDinner', 'roti', 'Handmade Roti', 2, 'pcs')">+ 2 Rotis</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotDinner', 'rice_white', 'White Rice', 1, 'bati')">+ 1 Bati Rice</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotDinner', 'fish', 'Rui Fish Curry', 1, 'pcs')">+ 1 Pc Fish</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotDinner', 'egg_boiled', 'Boiled Egg', 1, 'eggs')">+ 1 Boiled Egg</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotDinner', 'sabji', 'Mixed Sabji', 1, 'bati')">+ Mixed Sabji</span>
+                    <span class="quick-pill" onclick="Tracker.addFoodItem('slotDinner', 'dal_masoor', 'Masoor Dal', 1, 'bati')">+ 1 Bati Dal</span>
+                </div>
+
+                <div class="logged-items-list" id="dnLoggedItems">
+                    <div class="logged-item-row" data-key="roti" data-name="Handmade Roti" data-qty="2" data-unit="pcs">
+                        <span>• Handmade Roti (2 pcs)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                    <div class="logged-item-row" data-key="fish" data-name="Rui Fish Curry" data-qty="1" data-unit="pcs">
+                        <span>• Rui Fish Curry (1 pc ~80g)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                    <div class="logged-item-row" data-key="sabji" data-name="Mixed Sabji" data-qty="1" data-unit="bati">
+                        <span>• Mixed Sabji (1 bati)</span>
+                        <button type="button" class="remove-item-btn" onclick="Tracker.removeItem(this)">&times;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================================
+             5. BEVERAGES & SNACKS (DUDH CHA & STREET SNACKS)
+             ============================================================= -->
+        <div class="tracker-meal-card">
+            <div class="tracker-meal-header">
+                <h3 style="font-size: 1.1rem; color: var(--accent-amber);">☕ Milk Tea (Dudh Cha) & Snacks</h3>
+                <span style="font-size: 0.76rem; color: var(--text-muted);">Hidden Liquid & Snack Calories</span>
+            </div>
+
+            <div class="biometrics-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="trackTeaCups">Cups of Milk Tea Eaten Today</label>
+                    <input type="number" id="trackTeaCups" class="form-input" value="1" min="0" max="10" />
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="trackTeaSugar">Spoons of Sugar per Cup</label>
+                    <input type="number" id="trackTeaSugar" class="form-input" value="1" min="0" max="5" />
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem;">Each spoon = +20 kcal</div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 0.85rem; margin-bottom: 0;">
+                <label class="form-label" for="trackSnackDesc">Additional Snacks (Optional)</label>
+                <input type="text" id="trackSnackDesc" class="form-input" placeholder="e.g. 1 Singara in afternoon, 2 biscuits, chanachur, or fuchka" />
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+            <button type="button" class="btn-primary" onclick="Tracker.calculateIntake()" style="font-size: 1rem; padding: 0.85rem 2rem;">
+                <span>Calculate Total Calories & Macros</span>
+                <span>➔</span>
+            </button>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/tracker.js" asp-append-version="true"></script>
+}

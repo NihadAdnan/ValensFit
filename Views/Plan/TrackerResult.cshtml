@@ -1,0 +1,164 @@
+@model ValensFit.Models.FoodLogResultModel
+@{
+    ViewData["Title"] = $"{Model.UserName}'s Daily Calorie & Macro Report";
+}
+
+<div class="clean-card" id="trackerResultContainer" style="margin-bottom: 2rem;">
+
+    <!-- Top Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;" class="no-print">
+        <a href="/Plan/Tracker" class="btn-secondary" style="font-size: 0.82rem; padding: 0.4rem 0.95rem; min-height: 38px;">
+            <span>↺ Log Another Day / Adjust</span>
+        </a>
+        <button type="button" class="btn-primary" onclick="window.print()" style="font-size: 0.82rem; padding: 0.45rem 1.15rem; min-height: 38px;">
+            <span>Export / Print Report</span>
+        </button>
+    </div>
+
+    <!-- Header & Greeting -->
+    <div style="margin-bottom: 1.5rem;">
+        <div style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--accent-primary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
+            🔢 Daily Intake Analysis
+        </div>
+        <h1 style="font-size: 1.85rem; margin-bottom: 0.3rem; line-height: 1.2;">
+            Daily Calorie & Macro Breakdown for <span class="brand-accent-text">@Model.UserName</span>
+        </h1>
+        <p style="font-size: 0.92rem; color: var(--text-secondary);">
+            Calculated with localized cooking oil absorption, food portions, and beverage sugar.
+        </p>
+    </div>
+
+    <!-- Energy Balance Verdict Box -->
+    <div class="goal-comparison-box">
+        <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">
+                Energy Balance Verdict vs Maintenance TDEE
+            </div>
+            <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin: 0.2rem 0;">
+                @Model.EnergyBalanceVerdict
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                Estimated Maintenance (TDEE): <strong>@Model.EstimatedTdee.ToString("N0") kcal</strong> ➔ Total Consumed: <strong class="brand-accent-text">@Model.TotalCaloriesConsumed.ToString("N0") kcal</strong>
+            </div>
+        </div>
+        <div>
+            <span class="budget-verdict-pill @(Model.CalorieDifferenceFromTdee < 0 ? "budget-verdict-fits" : (Model.CalorieDifferenceFromTdee > 300 ? "budget-verdict-tight" : "budget-verdict-fits"))">
+                @(Model.CalorieDifferenceFromTdee > 0 ? $"+{Model.CalorieDifferenceFromTdee:N0} kcal" : $"{Model.CalorieDifferenceFromTdee:N0} kcal")
+            </span>
+        </div>
+    </div>
+
+    <!-- Hero Stats Banner -->
+    <div class="hero-stats-banner">
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.TotalCaloriesConsumed">@Model.TotalCaloriesConsumed.ToString("N0")</div>
+            <div class="hero-stat-label">Total Calories Eaten</div>
+            <div class="hero-stat-sub">From all meals & drinks</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.TotalProteinGrams" style="color: var(--accent-primary);">@Model.TotalProteinGrams.ToString("F1")</div>
+            <div class="hero-stat-label">Total Protein</div>
+            <div class="hero-stat-sub">@((Model.TotalProteinGrams * 4.0).ToString("N0")) kcal (4 kcal/g)</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.TotalCarbGrams" style="color: var(--accent-secondary);">@Model.TotalCarbGrams.ToString("F1")</div>
+            <div class="hero-stat-label">Total Carbohydrates</div>
+            <div class="hero-stat-sub">@((Model.TotalCarbGrams * 4.0).ToString("N0")) kcal (4 kcal/g)</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val count-up" data-target="@Model.TotalFatGrams" style="color: var(--accent-amber);">@Model.TotalFatGrams.ToString("F1")</div>
+            <div class="hero-stat-label">Total Dietary Fats</div>
+            <div class="hero-stat-sub">@((Model.TotalFatGrams * 9.0).ToString("N0")) kcal (9 kcal/g)</div>
+        </div>
+
+        <div class="hero-stat-card">
+            <div class="hero-stat-val" style="color: var(--accent-crimson);">
+                @Model.CookingOilCalories kcal
+            </div>
+            <div class="hero-stat-label">Cooking Oil Calories</div>
+            <div class="hero-stat-sub">~@((Model.CookingOilCalories * 100.0 / Math.Max(1, Model.TotalCaloriesConsumed)).ToString("F0"))% of total daily energy</div>
+        </div>
+    </div>
+
+    <!-- =================================================================
+         CALORIC SOURCE BREAKDOWN STRIP
+         ================================================================= -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.15rem; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.05rem; margin-bottom: 0.65rem;">Caloric Source Distribution</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; text-align: center;">
+            <div style="background: rgba(255, 255, 255, 0.02); padding: 0.75rem; border-radius: var(--radius-sm);">
+                <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Base Whole Food</div>
+                <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">@Model.BaseFoodCalories kcal</div>
+            </div>
+            <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.75rem; border-radius: var(--radius-sm);">
+                <div style="font-size: 0.72rem; color: #FCA5A5; text-transform: uppercase;">Cooking Oil / Ghee</div>
+                <div style="font-size: 1.25rem; font-weight: 700; color: #EF4444;">@Model.CookingOilCalories kcal</div>
+            </div>
+            <div style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.2); padding: 0.75rem; border-radius: var(--radius-sm);">
+                <div style="font-size: 0.72rem; color: #FCD34D; text-transform: uppercase;">Milk Tea & Sugar</div>
+                <div style="font-size: 1.25rem; font-weight: 700; color: #F59E0B;">@Model.BeverageAndSugarCalories kcal</div>
+            </div>
+            <div style="background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.2); padding: 0.75rem; border-radius: var(--radius-sm);">
+                <div style="font-size: 0.72rem; color: #67E8F9; text-transform: uppercase;">Snacks / Other</div>
+                <div style="font-size: 1.25rem; font-weight: 700; color: #06B6D4;">@Model.SnackCalories kcal</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================
+         MEAL-BY-MEAL BREAKDOWN CARDS
+         ================================================================= -->
+    <div style="margin-bottom: 1.75rem;">
+        <h2 style="font-size: 1.35rem; margin-bottom: 0.85rem;">Meal-by-Meal Log</h2>
+
+        @foreach (var meal in Model.MealSummaries)
+        {
+            <div class="meal-card">
+                <div class="meal-header">
+                    <div>
+                        <div class="meal-title">@meal.MealName</div>
+                        <div style="font-size: 0.74rem; color: var(--accent-primary);">@meal.CookingDetailsText</div>
+                    </div>
+                    <div class="meal-macros-badge">
+                        <strong style="color: var(--text-primary);">@meal.MealCalories kcal</strong> · 
+                        <span style="color: var(--accent-primary);">@meal.ProteinGrams g P</span> · 
+                        <span style="color: var(--accent-secondary);">@meal.CarbGrams g C</span> · 
+                        <span style="color: var(--accent-amber);">@meal.FatGrams g F</span>
+                    </div>
+                </div>
+
+                <ul class="food-items-list">
+                    @foreach (var itemText in meal.ItemDescriptions)
+                    {
+                        <li style="padding: 0.35rem 0; font-size: 0.85rem; color: var(--text-secondary); border-bottom: 1px dashed rgba(255, 255, 255, 0.04);">
+                            @itemText
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+
+    <!-- =================================================================
+         PRACTICAL DHAKA COOKING & NUTRITIONAL INSIGHTS
+         ================================================================= -->
+    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid var(--accent-border); border-radius: var(--radius-md); padding: 1.25rem;">
+        <h3 style="font-size: 1.05rem; color: var(--accent-primary); margin-bottom: 0.45rem;">
+            💡 Actionable Insights for Dhaka Eating & Cooking:
+        </h3>
+        <ul style="padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+            @foreach (var insight in Model.ActionableInsights)
+            {
+                <li style="margin-bottom: 0.35rem;">@Html.Raw(insight)</li>
+            }
+        </ul>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/result.js" asp-append-version="true"></script>
+}

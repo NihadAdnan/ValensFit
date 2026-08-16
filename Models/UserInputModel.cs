@@ -1,11 +1,14 @@
+using System;
+using System.Collections.Generic;
+
 namespace ValensFit.Models
 {
     public class UserInputModel
     {
         public string FirstName { get; set; } = "Friend";
+        public string PlanMode { get; set; } = "Combined"; // "Diet", "Workout", "Tracker", "Combined"
 
         public string Gender { get; set; } = "Male"; // Male, Female
-
         public int Age { get; set; } = 25;
 
         public double Height { get; set; } = 175; // in cm or ft
@@ -26,14 +29,14 @@ namespace ValensFit.Models
         public double? TargetWeightLossKg { get; set; }
         public int? TimeframeWeeks { get; set; }
 
+        // Strictly localized for Dhaka, Bangladesh
         public string Country { get; set; } = "Bangladesh";
-        public string? CityRegion { get; set; } = "Dhaka";
-
+        public string CityRegion { get; set; } = "Dhaka";
         public decimal? MonthlyBudget { get; set; } = 7000;
         public string Currency { get; set; } = "BDT";
 
         public List<string> DietPreferences { get; set; } = new();
-        // Tags: "Halal", "Egg + Chicken Only", "Vegetarian", "Vegan", "No beef", "No pork", "No fish", "Lactose Free", "Gluten Free", "Nut Free"
+        // Tags: "Halal", "Egg + Chicken Only", "Vegetarian", "Vegan", "No beef", "No fish", "Dairy Free"
 
         public string? CustomRestrictions { get; set; }
 
@@ -44,18 +47,13 @@ namespace ValensFit.Models
         public bool OfficeLunch { get; set; } = false;
         public string? OfficeLunchDescription { get; set; } // Open text field: user can describe anything they eat outside
 
-        // Exercise Preferences
-        public string ExercisePreference { get; set; } = "Gym"; 
-        // Gym, HomeBodyweight, WalkingOnly, NoExercise
-
-        public int DailyStepsTarget { get; set; } = 10000; // Step target for walking / general NEAT
-
+        // Exercise & Training Preferences
+        public string WorkoutGoal { get; set; } = "Hypertrophy"; // FatLoss, Hypertrophy, Strength, GeneralFitness
+        public string ExercisePreference { get; set; } = "Gym"; // Gym, HomeBodyweight, WalkingOnly, NoExercise
+        public int DailyStepsTarget { get; set; } = 8000; // Step target for walking / general NEAT
         public string HomeEquipment { get; set; } = "None"; // "None", "PullUpBar", "Bands", "Dumbbells"
-
         public int MinutesPerSession { get; set; } = 45;
-
         public int DaysPerWeek { get; set; } = 4;
-
         public string ExperienceLevel { get; set; } = "Beginner"; // Beginner, Intermediate, Advanced
 
         // Helper calculations with sanitization

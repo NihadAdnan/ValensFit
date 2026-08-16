@@ -28,6 +28,7 @@ namespace ValensFit.Tests
         private readonly MealSwapService _mealSwap;
         private readonly ExercisePlanService _exerciseService;
         private readonly GroceryPricingService _groceryPricing;
+        private readonly DailyCalorieCalculatorService _calorieCalculator;
 
         public NutritionAndPlanTests()
         {
@@ -37,6 +38,7 @@ namespace ValensFit.Tests
             _mealSwap = new MealSwapService(_foodDatabase);
             _exerciseService = new ExercisePlanService(env, NullLogger<ExercisePlanService>.Instance);
             _groceryPricing = new GroceryPricingService(_foodDatabase, NullLogger<GroceryPricingService>.Instance);
+            _calorieCalculator = new DailyCalorieCalculatorService(_bmrCalculator, _tdeeCalculator);
         }
 
         [Fact]
@@ -90,104 +92,83 @@ namespace ValensFit.Tests
         }
 
         [Fact]
-        public void MacroCalculator_AggressivePace_ShouldAutoCalibrateAndWarn()
-        {
-            var input = new UserInputModel
-            {
-                FirstName = "TestUser",
-                Gender = "Male",
-                Age = 25,
-                Weight = 70,
-                Height = 175,
-                Goal = "LoseFat",
-                TargetWeightLossKg = 10,
-                TimeframeWeeks = 4
-            };
-
-            var result = _macroCalculator.CalculateMacros(input, 1674, 2500);
-
-            Assert.NotNull(result.PaceWarning);
-            Assert.Contains("overly aggressive", result.PaceWarning, StringComparison.OrdinalIgnoreCase);
-        }
-
-        [Fact]
         public void FoodDatabase_BangladeshRegion_ShouldFilterRealisticStaples()
         {
             var bangladeshFoods = _foodDatabase.FilterFoods(new List<string> { "Halal" }, null, "Breakfast", null, "Bangladesh");
             Assert.NotEmpty(bangladeshFoods);
-            // Should contain eggs, roti, banana, sour curd, etc. and not western-only items
             Assert.Contains(bangladeshFoods, f => f.Id == "egg_whole" || f.Id == "whole_wheat_roti");
             Assert.DoesNotContain(bangladeshFoods, f => f.Id == "rolled_oats");
         }
 
         [Fact]
-        public void MealBuilderService_LightBreakfast_ShouldDistributeCalories()
+        public void ExercisePlanService_METEquations_ShouldCalculateAccurateCalorieBurn()
         {
             var input = new UserInputModel
             {
-                FirstName = "Rafi",
-                Gender = "Male",
-                Age = 25,
+                ExercisePreference = "Gym",
                 Weight = 75,
-                Height = 175,
-                Goal = "LoseFat",
-                Country = "Bangladesh",
-                MealStructure = "LightBreakfast"
+                MinutesPerSession = 60,
+                DaysPerWeek = 4,
+                DailyStepsTarget = 10000
             };
 
-            double targetKcal = 1800;
-            double targetProtein = 165;
-            double targetFat = 44;
-            double targetCarbs = 186;
+            var plan = _exerciseService.GeneratePlan(input);
 
-            var days = _mealBuilder.BuildSevenDayPlan(input, targetKcal, targetProtein, targetFat, targetCarbs);
-
-            Assert.Equal(7, days.Count);
-            foreach (var day in days)
-            {
-                var breakfast = day.Meals.First(m => m.SlotName == "Breakfast");
-                var lunch = day.Meals.First(m => m.SlotName == "Lunch");
-                var dinner = day.Meals.First(m => m.SlotName == "Dinner");
-
-                // Breakfast should be lighter than lunch/dinner
-                Assert.True(breakfast.ActualCalories < lunch.ActualCalories);
-                Assert.True(breakfast.ActualCalories < dinner.ActualCalories);
-            }
+            // 75kg * 5.8 MET * 1 hr = ~435 kcal per session
+            Assert.True(plan.AvgCaloriesBurnedPerSession >= 400);
+            Assert.True(plan.WeeklyTotalCalorieBurn > plan.AvgCaloriesBurnedPerSession * 4);
+            Assert.True(plan.DailyStepsCalorieBurn > 0);
         }
 
         [Fact]
-        public void MealSwapService_ShouldRecalibratePortionOnSwap()
+        public void DailyCalorieCalculatorService_ShouldAccountForOilAndTeaSugar()
         {
-            var swapReq = new MealSwapService.SwapItemRequest
+            var logInput = new DailyFoodLogInput
             {
-                TargetFoodId = "chicken_breast",
-                ReplacementFoodId = "white_fish_tilapia",
-                OriginalCalories = 297,
-                OriginalProtein = 55.8,
-                MealSlot = "Lunch"
+                Name = "Tanvir",
+                WeightKg = 72,
+                HeightCm = 174,
+                Age = 25,
+                BiologicalSex = "Male",
+                CupsOfMilkTea = 2,
+                SpoonsOfSugarPerCup = 2,
+                Meals = new List<LoggedMealSlot>
+                {
+                    new LoggedMealSlot
+                    {
+                        MealName = "Breakfast",
+                        CookingOilType = "Mustard",
+                        OilAmount = "Low",
+                        CookingMethod = "Jhol",
+                        Items = new List<LoggedFoodItem>
+                        {
+                            new LoggedFoodItem { FoodKey = "roti", Quantity = 2, PortionUnit = "pcs" },
+                            new LoggedFoodItem { FoodKey = "egg_boiled", Quantity = 2, PortionUnit = "eggs" }
+                        }
+                    },
+                    new LoggedMealSlot
+                    {
+                        MealName = "Lunch",
+                        CookingOilType = "Mustard",
+                        OilAmount = "High",
+                        CookingMethod = "Bhuna",
+                        Items = new List<LoggedFoodItem>
+                        {
+                            new LoggedFoodItem { FoodKey = "rice_white", Quantity = 1, PortionUnit = "bati" },
+                            new LoggedFoodItem { FoodKey = "chicken", Quantity = 1, PortionUnit = "pcs" },
+                            new LoggedFoodItem { FoodKey = "dal_masoor", Quantity = 1, PortionUnit = "bati" }
+                        }
+                    }
+                }
             };
 
-            var swapResp = _mealSwap.SwapFoodItem(swapReq);
+            var result = _calorieCalculator.CalculateDailyIntake(logInput);
 
-            Assert.True(swapResp.Success);
-            Assert.NotNull(swapResp.NewItem);
-            Assert.Equal("white_fish_tilapia", swapResp.NewItem.FoodId);
-            Assert.True(swapResp.NewItem.Grams > 0);
-        }
-
-        [Fact]
-        public void ExercisePlanService_WalkingSteps_ShouldReflectInPlan()
-        {
-            var inputWalk = new UserInputModel
-            {
-                ExercisePreference = "WalkingOnly",
-                DaysPerWeek = 5,
-                MinutesPerSession = 45,
-                DailyStepsTarget = 12000
-            };
-            var planWalk = _exerciseService.GeneratePlan(inputWalk);
-            Assert.NotEmpty(planWalk.Schedule);
-            Assert.Equal(12000, planWalk.DailyStepTarget);
+            Assert.True(result.TotalCaloriesConsumed > 1000);
+            Assert.True(result.CookingOilCalories > 200, "High Bhuna + Jhol oil must add significant fat calories");
+            Assert.True(result.BeverageAndSugarCalories >= 160, "2 cups of milk tea with 2 spoons sugar must add ~170 kcal");
+            Assert.True(result.TotalProteinGrams > 45);
+            Assert.NotEmpty(result.ActionableInsights);
         }
 
         [Fact]

@@ -1,8 +1,102 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "ValensFit — Personalized Fitness & Nutrition Protocols (Dhaka)";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div style="max-width: 960px; margin: 0 auto;">
+    
+    <!-- Hero Header -->
+    <div style="text-align: center; margin-bottom: 2.25rem;">
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.08); border: 1px solid var(--accent-border); padding: 0.35rem 0.95rem; border-radius: var(--radius-pill); font-size: 0.8rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 0.75rem;">
+            🏛️ Dhaka Sports Nutrition & Fitness Architecture
+        </div>
+        <h1 style="font-size: 2.35rem; line-height: 1.2; margin-bottom: 0.5rem;">
+            Precision Protocols for <span class="brand-accent-text">Dhaka, Bangladesh</span>
+        </h1>
+        <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 620px; margin: 0 auto;">
+            Select a specialized mode below to generate your tailored protocol or analyze your daily nutrition.
+        </p>
+    </div>
+
+    <!-- Mode Selector Grid -->
+    <div class="mode-cards-grid">
+        
+        <!-- MODE 1: DIET ARCHITECT -->
+        <div class="mode-card">
+            <div class="mode-card-badge">🥗 Nutrition Engine</div>
+            <h2 class="mode-card-title">Diet & Meal Plan Architect</h2>
+            <p class="mode-card-desc">
+                Generate a deterministic 7-day Dhaka meal schedule tailored to your biometrics and goals. Uses authentic local ingredients with an optional weekly grocery shopping budget breakdown.
+            </p>
+            <ul class="mode-card-features">
+                <li>✓ Caloric deficit/surplus & high-protein targets</li>
+                <li>✓ Authentic Dhaka staples (Fish, Chicken, Eggs, Rice, Dal)</li>
+                <li>✓ Light breakfast & office lunch options</li>
+                <li>✓ Optional 7-Day grocery shopping cart & cost index</li>
+            </ul>
+            <a href="/Plan/Diet" class="btn-primary mode-card-btn">
+                <span>Launch Diet Architect</span>
+                <span>➔</span>
+            </a>
+        </div>
+
+        <!-- MODE 2: WORKOUT PLANNER -->
+        <div class="mode-card">
+            <div class="mode-card-badge">🏋️ Training Engine</div>
+            <h2 class="mode-card-title">Workout & Fitness Planner</h2>
+            <p class="mode-card-desc">
+                Build a structured training regiment customized to your schedule, equipment, and experience. Features sports-science MET formulas to calculate accurate calorie burns.
+            </p>
+            <ul class="mode-card-features">
+                <li>✓ Gym, Home Calisthenics, or Walking protocols</li>
+                <li>✓ Sets, reps, rest timers, cues & regressions</li>
+                <li>✓ Per-session & weekly MET calorie burn analytics</li>
+                <li>✓ NEAT daily step targets & energy expenditure</li>
+            </ul>
+            <a href="/Plan/Workout" class="btn-primary mode-card-btn">
+                <span>Launch Workout Planner</span>
+                <span>➔</span>
+            </a>
+        </div>
+
+        <!-- MODE 3: DAILY CALORIE TRACKER -->
+        <div class="mode-card">
+            <div class="mode-card-badge">🔢 Intake Tracker</div>
+            <h2 class="mode-card-title">Daily Calorie & Macro Tracker</h2>
+            <p class="mode-card-desc">
+                Log the foods you ate today with Dhaka-specific cooking details. Accurately calculates calories absorbed from cooking oil (Mustard/Soybean/Ghee), preparation style, and milk tea.
+            </p>
+            <ul class="mode-card-features">
+                <li>✓ Cooking oil & fat intake analysis (Bhuna vs Jhol)</li>
+                <li>✓ Dhaka portion measurements (bati, rotis, pieces)</li>
+                <li>✓ Milk tea (Dudh cha) & sugar calorie breakdown</li>
+                <li>✓ Energy balance vs. maintenance TDEE verdict</li>
+            </ul>
+            <a href="/Plan/Tracker" class="btn-primary mode-card-btn">
+                <span>Launch Calorie Tracker</span>
+                <span>➔</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Combined Mode Strip -->
+    <div class="combined-mode-strip">
+        <div>
+            <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--accent-primary); font-weight: 700; letter-spacing: 0.05em;">
+                ⚡ All-In-One Synchronized Plan
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin: 0.2rem 0;">
+                Complete Diet + Training Transformation Protocol
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                Want both synced together? Generate your 7-day meal plan, grocery list, and workout split in a single flow.
+            </div>
+        </div>
+        <div>
+            <a href="/Plan/Combined" class="btn-secondary" style="white-space: nowrap; padding: 0.75rem 1.4rem;">
+                <span>Launch Combined Plan ➔</span>
+            </a>
+        </div>
+    </div>
+
 </div>

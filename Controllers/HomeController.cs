@@ -8,7 +8,7 @@ namespace ValensFit.Controllers
     {
         public IActionResult Index()
         {
-            return RedirectToAction("Index", "Plan");
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
